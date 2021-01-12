@@ -9,6 +9,10 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      rel="stylesheet"
+      href="https://www.w3schools.com/lib/w3-colors-flat.css"
+    />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.min.js"></script>
@@ -16,7 +20,7 @@
     <script src="myGenetic.js"></script>
   </head>
 
-  <body class="w3-container">
+  <body class="w3-container w3-flat-midnight-blue">
     <h1>Genetic Optimization for Traveling salesman problem</h1>
     <div class="w3-container w3-cell-row">
       <div class="w3-container w3-margin">
@@ -89,9 +93,12 @@
       </div>
     </div>
 
-    <table id="results" class="w3-table-all w3-hoverable">
+    <table
+      id="results"
+      class="w3-table w3-table-border w3-striped w3-centered w3-hoverable w3-flat-silver"
+    >
       <thead>
-        <tr>
+        <tr class="w3-flat-concrete">
           <th>Generation</th>
           <th>Fitness</th>
           <th>Solution</th>

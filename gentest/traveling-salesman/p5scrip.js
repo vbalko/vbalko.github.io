@@ -6,15 +6,15 @@ const s = (p) => {
       window.generations + margin * 2,
       window.canvasSizeGraph + margin * 2
     );
-    p.stroke(255);
+    p.stroke(10);
     p.noLoop();
 
     y = p.height * 0.5;
   };
 
   p.draw = function () {
-    p.background(220);
-    p.stroke('black');
+    p.background(20);
+    p.stroke('silver');
     p.line(margin, margin, margin, window.canvasSizeGraph + margin);
     p.line(
       margin,
@@ -27,7 +27,7 @@ const s = (p) => {
   };
 
   p.drawLines = function () {
-    p.stroke(0);
+    p.stroke('silver');
 
     let px = 0 + margin;
     let py = 0 + margin;
@@ -54,25 +54,25 @@ const mapP5 = (p) => {
   };
 
   p.draw = function () {
-    p.background(220);
+    p.background(20);
     p.drawCityConnections();
     p.drawCities();
   };
 
   p.drawCities = function () {
     p.noStroke();
-    let color = p.color('white');
+    let color = p.color('silver');
     for (let i = 0; i < cities.length; i++) {
       if (i == window.lastSolution[0]) {
         color = p.color('red');
       } else {
-        color = p.color('white');
+        color = p.color('silver');
       }
       let x = cities[i].x + margin;
       let y = cities[i].y + margin;
       p.fill(color);
       p.ellipse(x, y, 15);
-      p.fill(p.color('black'));
+      p.fill(p.color('deep-orange'));
       p.text(cities[i].name, x, y);
     }
   };

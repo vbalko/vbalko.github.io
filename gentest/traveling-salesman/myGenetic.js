@@ -113,7 +113,7 @@ genetic.notification = function (pop, generation, stats, isFinished) {
   }
 
   var buf = '';
-  buf += '<tr>';
+  buf += '<tr class="w3-flat-silver">';
   buf += '<td>' + generation + '</td>';
   buf += '<td>' + pop[0].fitness.toPrecision(5) + '</td>';
   buf += '<td>' + value + '</td>';
