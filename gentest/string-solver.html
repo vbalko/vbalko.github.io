@@ -135,6 +135,7 @@
             buf += "<td>" + generation + "</td>";
             buf += "<td>" + pop[0].fitness.toPrecision(5) + "</td>";
             buf += "<td>" + solution.join("") + "</td>";
+            buf += "<td>" + stats.mean + " ( " + stats.stdev + " ) </td>";
             buf += "</tr>";
             $("#results tbody").prepend(buf);
 
