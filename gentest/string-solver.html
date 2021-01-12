@@ -9,20 +9,49 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link
+      rel="stylesheet"
+      href="https://www.w3schools.com/lib/w3-colors-flat.css"
+    />
   </head>
 
-  <body class="w3-container">
-    <h1>Genetic String Solver</h1>
-
-    <textarea id="quote" style="width: 300px; height: 100px">
+  <body class="w3-container w3-flat-midnight-blue">
+    <div class="w3-container w3-cell-row">
+      <div class="w3-container w3-cell">
+        <a href="./index.html">
+          <button class="w3-button w3-round-xlarge w3-border w3-border-teal">
+            Back
+          </button>
+        </a>
+      </div>
+      <div class="w3-container w3-cell">
+        <h2>Genetic String Solver</h2>
+      </div>
+    </div>
+    <div class="w3-container w3-cell-row">
+      <div class="w3-container w3-margin w3-cell">
+        <button
+          id="solve"
+          class="w3-button w3-round-xlarge w3-border w3-border-green"
+        >
+          Solve
+        </button>
+      </div>
+    </div>
+    <div class="w3-container w3-cell-row">
+      <div class="w3-container w3-margin w3-cell">
+        <textarea id="quote" style="width: 300px; height: 100px">
 Insanity is doing the same thing over and over again and expecting different results</textarea
+        >
+      </div>
+    </div>
+
+    <table
+      id="results"
+      class="w3-table w3-table-border w3-striped w3-centered w3-hoverable w3-flat-silver"
     >
-
-    <button id="solve">Solve</button>
-
-    <table id="results" class="w3-table-all w3-hoverable">
       <thead>
-        <tr>
+        <tr class="w3-flat-concrete">
           <th>Generation</th>
           <th>Fitness</th>
           <th>Solution</th>
@@ -142,7 +171,7 @@ Insanity is doing the same thing over and over again and expecting different res
         }
 
         var buf = '';
-        buf += '<tr>';
+        buf += '<tr class="w3-flat-silver">';
         buf += '<td>' + generation + '</td>';
         buf += '<td>' + pop[0].fitness.toPrecision(5) + '</td>';
         buf += '<td>' + solution.join('') + '</td>';
@@ -165,7 +194,7 @@ Insanity is doing the same thing over and over again and expecting different res
             crossover: 0.3,
             mutation: 0.3,
             skip: 0,
-            webWorkers: false,
+            webWorkers: true,
           };
 
           var userData = {
