@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Genetic.js Traveling Salesman</title>
+    <script src="../lib/genetic.js"></script>
+    <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.min.js"></script>
+    <script src="p5scrip.js"></script>
+    <script src="myGenetic.js"></script>
+  </head>
+
+  <body class="w3-container">
+    <h1>Genetic Optimization for Traveling salesman problem</h1>
+    <div class="w3-container w3-cell-row">
+      <div class="w3-container w3-margin">
+        <button
+          id="solve"
+          class="w3-button w3-round-xlarge w3-border w3-border-green"
+        >
+          Solve
+        </button>
+      </div>
+      <div class="w3-container w3-cell-row">
+        <div id="graph" class="w3-container w3-cell"></div>
+        <div id="map" class="w3-container w3-cell"></div>
+        <div class="w3-container w3-cell">
+          <div class="w3-container w3-green">
+            <h2>Parameters</h2>
+          </div>
+          <form class="w3-container">
+            <label class="w3-text-green"><b>Select 1</b></label>
+            <select id="select1" class="w3-select" name="option">
+              <option value="Tournament2">Tournament2</option>
+              <option value="Tournament3">Tournament3</option>
+              <option value="Fittest">Fittest</option>
+              <option value="Random">Random</option>
+              <option value="RandomLinearRank">RandomLinearRank</option>
+              <option value="Sequential">Sequential</option>
+            </select>
+            <label class="w3-text-green"><b>Select 2</b></label>
+            <select id="select2" class="w3-select" name="option">
+              <option value="Tournament2">Tournament2</option>
+              <option value="Tournament3">Tournament3</option>
+              <option value="Random">Random</option>
+              <option value="RandomLinearRank">RandomLinearRank</option>
+              <option value="Sequential">Sequential</option>
+              <option value="FittestRandom">FittestRandom</option>
+            </select>
+            <label class="w3-text-green"><b>Mutation rate</b></label>
+            <div class="slidecontainer">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value="30"
+                class="slider"
+                id="mutation_rate_slider"
+              />
+              <p>Value: <span id="mutation_rate_value"></span></p>
+            </div>
+            <label class="w3-text-green"><b>Crossover rate</b></label>
+            <div class="slidecontainer">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value="80"
+                class="slider"
+                id="crossover_rate_slider"
+              />
+              <p>Value: <span id="crossover_rate_value"></span></p>
+              <input
+                class="w3-check"
+                type="checkbox"
+                checked="checked"
+                id="fittest_switch"
+              />
+              <label>Survival of fittest</label>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <table id="results" class="w3-table-all w3-hoverable">
+      <thead>
+        <tr>
+          <th>Generation</th>
+          <th>Fitness</th>
+          <th>Solution</th>
+          <th>Statistics</th>
+        </tr>
+      </thead>
+      <tbody style="font-family: monospace"></tbody>
+    </table>
+
+    <script>
+      window.generations = 500;
+      window.canvasSizeGraph = 400;
+      window.canvasSizeMap = 400;
+
+      function generateCities(count, dimension) {
+        function getRandomInt(max) {
+          return Math.floor(Math.random() * Math.floor(max));
+        }
+        let res = [];
+        for (let i = 0; i < count; i++) {
+          const obj = {};
+          obj.name = `city${i}`;
+          obj.x = getRandomInt(dimension);
+          obj.y = getRandomInt(dimension);
+          res.push(obj);
+        }
+        return res;
+      }
+
+      //   const cities = [
+      //     { name: 'city 0', x: 1, y: 1 },
+      //     { name: 'city 1', x: 5, y: 3 },
+      //     { name: 'city 2', x: 2, y: 6 },
+      //     { name: 'city 3', x: 1, y: 5 },
+      //     { name: 'city 4', x: 2, y: 3 },
+      //   ];
+      const cities = generateCities(25, window.canvasSizeMap);
+      window.data = [];
+      window.dataNorm = [];
+      window.lastSolution = [];
+
+      const myp5 = new p5(s, 'graph');
+      const myMapP5 = new p5(mapP5, 'map');
+
+      genetic.optimize = Genetic.Optimize.Minimize;
+      genetic.select1 = Genetic.Select1.Tournament2;
+      genetic.select2 = Genetic.Select2.Tournament3; //Genetic.Select2.Tournament2;
+      const config = {
+        iterations: window.generations,
+        size: 550,
+        crossover: 1,
+        mutation: 0.3,
+        skip: 0,
+        fittestAlwaysSurvives: false,
+        webWorkers: true,
+      };
+
+      function initUI() {
+        genetic.select1 = Genetic.Select1[$('#select1').val()];
+        genetic.select2 = Genetic.Select2[$('#select2').val()];
+
+        $('#mutation_rate_value').html($('mutation_rate_slider').val());
+        $('#crossover_rate_value').html($('crossover_rate_slider').val());
+        $('#fittest_switch').prop('checked', config.fittestAlwaysSurvives);
+      }
+
+      $(document).ready(function () {
+        initUI();
+        $('#solve').click(function () {
+          $('#results tbody').html('');
+
+          window.data = [];
+          window.dataNorm = [];
+          window.lastSolution = [];
+          window.myp5 = myp5;
+          window.myMapP5 = myMapP5;
+
+          var userData = {
+            // graph: myp5,
+            cities: cities,
+          };
+
+          genetic.evolve(config, userData);
+        });
+        $('#select1').change(function (e) {
+          genetic.select1 = Genetic.Select1[e.target.value];
+        });
+        $('#select2').change(function (e) {
+          genetic.select2 = Genetic.Select2[e.target.value];
+        });
+        $('#mutation_rate_slider').change(function (e) {
+          config.mutation = e.target.value / 100;
+          $('#mutation_rate_value').html(e.target.value / 100);
+        });
+        $('#crossover_rate_slider').change(function (e) {
+          config.crossover = e.target.value / 100;
+          $('#crossover_rate_value').html(e.target.value / 100);
+        });
+        $('#fittest_switch').change(function (e) {
+          config.fittestAlwaysSurvives = e.target.checked;
+        });
+      });
+    </script>
+  </body>
+</html>
