@@ -21,9 +21,21 @@
   </head>
 
   <body class="w3-container w3-flat-midnight-blue">
-    <h1>Genetic Optimization for Traveling salesman problem</h1>
     <div class="w3-container w3-cell-row">
-      <div class="w3-container w3-margin">
+      <div class="w3-container w3-cell">
+        <a href="../index.html">
+          <button class="w3-button w3-round-xlarge w3-border w3-border-teal">
+            Back
+          </button>
+        </a>
+      </div>
+      <div class="w3-container w3-cell">
+        <h2>Genetic Optimization for Traveling salesman problem</h2>
+      </div>
+    </div>
+
+    <div class="w3-container w3-cell-row">
+      <div class="w3-container w3-margin w3-cell">
         <button
           id="solve"
           class="w3-button w3-round-xlarge w3-border w3-border-green"
@@ -31,65 +43,66 @@
           Solve
         </button>
       </div>
-      <div class="w3-container w3-cell-row">
-        <div id="graph" class="w3-container w3-cell"></div>
-        <div id="map" class="w3-container w3-cell"></div>
-        <div class="w3-container w3-cell">
-          <div class="w3-container w3-green">
-            <h2>Parameters</h2>
-          </div>
-          <form class="w3-container">
-            <label class="w3-text-green"><b>Select 1</b></label>
-            <select id="select1" class="w3-select" name="option">
-              <option value="Tournament2">Tournament2</option>
-              <option value="Tournament3">Tournament3</option>
-              <option value="Fittest">Fittest</option>
-              <option value="Random">Random</option>
-              <option value="RandomLinearRank">RandomLinearRank</option>
-              <option value="Sequential">Sequential</option>
-            </select>
-            <label class="w3-text-green"><b>Select 2</b></label>
-            <select id="select2" class="w3-select" name="option">
-              <option value="Tournament2">Tournament2</option>
-              <option value="Tournament3">Tournament3</option>
-              <option value="Random">Random</option>
-              <option value="RandomLinearRank">RandomLinearRank</option>
-              <option value="Sequential">Sequential</option>
-              <option value="FittestRandom">FittestRandom</option>
-            </select>
-            <label class="w3-text-green"><b>Mutation rate</b></label>
-            <div class="slidecontainer">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value="30"
-                class="slider"
-                id="mutation_rate_slider"
-              />
-              <p>Value: <span id="mutation_rate_value"></span></p>
-            </div>
-            <label class="w3-text-green"><b>Crossover rate</b></label>
-            <div class="slidecontainer">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value="80"
-                class="slider"
-                id="crossover_rate_slider"
-              />
-              <p>Value: <span id="crossover_rate_value"></span></p>
-              <input
-                class="w3-check"
-                type="checkbox"
-                checked="checked"
-                id="fittest_switch"
-              />
-              <label>Survival of fittest</label>
-            </div>
-          </form>
+    </div>
+
+    <div class="w3-container w3-cell-row">
+      <div id="graph" class="w3-container w3-cell"></div>
+      <div id="map" class="w3-container w3-cell"></div>
+      <div class="w3-container w3-cell">
+        <div class="w3-container w3-green">
+          <h2>Parameters</h2>
         </div>
+        <form class="w3-container">
+          <label class="w3-text-green"><b>Select 1</b></label>
+          <select id="select1" class="w3-select" name="option">
+            <option value="Tournament2">Tournament2</option>
+            <option value="Tournament3">Tournament3</option>
+            <option value="Fittest">Fittest</option>
+            <option value="Random">Random</option>
+            <option value="RandomLinearRank">RandomLinearRank</option>
+            <option value="Sequential">Sequential</option>
+          </select>
+          <label class="w3-text-green"><b>Select 2</b></label>
+          <select id="select2" class="w3-select" name="option">
+            <option value="Tournament2">Tournament2</option>
+            <option value="Tournament3">Tournament3</option>
+            <option value="Random">Random</option>
+            <option value="RandomLinearRank">RandomLinearRank</option>
+            <option value="Sequential">Sequential</option>
+            <option value="FittestRandom">FittestRandom</option>
+          </select>
+          <label class="w3-text-green"><b>Mutation rate</b></label>
+          <div class="slidecontainer">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="30"
+              class="slider"
+              id="mutation_rate_slider"
+            />
+            <p>Value: <span id="mutation_rate_value"></span></p>
+          </div>
+          <label class="w3-text-green"><b>Crossover rate</b></label>
+          <div class="slidecontainer">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="80"
+              class="slider"
+              id="crossover_rate_slider"
+            />
+            <p>Value: <span id="crossover_rate_value"></span></p>
+            <input
+              class="w3-check"
+              type="checkbox"
+              checked="checked"
+              id="fittest_switch"
+            />
+            <label>Survival of fittest</label>
+          </div>
+        </form>
       </div>
     </div>
 
