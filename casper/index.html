@@ -21,47 +21,59 @@
     </header>
     <br />
     <div class="container">
-      <div class="row">
-        <div class="col-sm"></div>
-        <!-- Adding some flex properties to center the form and some height to the page, these can be omitted -->
+      <div class="row cols-sm-12 cols-lg-10">
+        <!-- Add the extra style to make card spacing look better -->
         <div
-          class="col-sm-12 col-md-8 col-lg-6"
+          class="col-lg-offset-1 row"
           style="
-            height: calc(100vh - 10.25rem);
-            display: flex;
-            align-items: center;
-            flex: 0 1 auto;
+            -webkit-justify-content: space-around;
+            justify-content: space-around;
           "
         >
-          <form>
-            <fieldset>
-              <legend>Your</legend>
-              <div class="input-group fluid">
-                <label for="username" style="width: 80px">Username</label>
-                <input
-                  type="email"
-                  value=""
-                  id="username"
-                  placeholder="username"
-                />
-              </div>
-              <div class="input-group fluid">
-                <label for="pwd" style="width: 80px">Password</label>
-                <input
-                  type="password"
-                  value=""
-                  id="pwd"
-                  placeholder="password"
-                />
-              </div>
-              <div class="input-group fluid">
-                <button class="primary">Login</button>
-                <button>Forgot password?</button>
-              </div>
-            </fieldset>
-          </form>
+          <div class="card">
+            <form>
+              <fieldset>
+                <legend>Wallet</legend>
+                <div class="input-group fluid">
+                  <label>Adress</label>
+                  <label id='lbl_adress'></label>
+                  <label>Network</label>
+                  <label id='lbl_network'></label>                  
+                </div>
+              </fieldset>
+            </form>
+          </div>
+
+          <div class="card">
+            <form>
+              <fieldset>
+                <legend>Your</legend>
+                <div class="input-group fluid">
+                  <label for="username" style="width: 80px">Username</label>
+                  <input
+                    type="email"
+                    value=""
+                    id="username"
+                    placeholder="username"
+                  />
+                </div>
+                <div class="input-group fluid">
+                  <label for="pwd" style="width: 80px">Password</label>
+                  <input
+                    type="password"
+                    value=""
+                    id="pwd"
+                    placeholder="password"
+                  />
+                </div>
+                <div class="input-group fluid">
+                  <button class="primary">Login</button>
+                  <button>Forgot password?</button>
+                </div>
+              </fieldset>
+            </form>
+          </div>
         </div>
-        <div class="col-sm"></div>
       </div>
     </div>
     <span id="toast" class="toast hidden">This is a toast message!</span>
@@ -71,5 +83,12 @@
         <a href="https://chalarangelo.github.io/mini.css/">mini.css</a>
       </p>
     </footer>
+    <script>
+      $("document").ready(() => {
+        initMetamask();
+        console.log('aa');
+        initWalletInfo();
+      });
+    </script>
   </body>
 </html>
