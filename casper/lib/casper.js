@@ -13,5 +13,6 @@ const ethEnabled = async () => {
 if (!ethEnabled()) {
   alert("Please install MetaMask to use this dApp!");
 } else {
-  alert("Metamask ok");
+    $('#toast').removeClass('hidden');
+    //alert("Metamask ok");
 }
