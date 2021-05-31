@@ -3,6 +3,9 @@ class State {
     this._metamask = {
       provider: undefined,
     };
+    this._FTMScan = {
+      provider: undefined,
+    };
   }
 
   get metamask() {
@@ -11,6 +14,14 @@ class State {
 
   set metamask(value) {
     this._metamask.provider = value;
+  }
+
+  get FTMScan() {
+    return this._FTMScan.provider;
+  }
+
+  set FTMScan(value) {
+    this._FTMScan.provider = value;
   }
 
   //   get adress() {

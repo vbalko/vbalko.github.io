@@ -5,4 +5,5 @@ const utils = {
     ).then((response) => response.json());
     return ret.fantom.usd;
   },
+  tokenToPrecision: (value, precision) => Number(value) / 10 ** precision,
 };

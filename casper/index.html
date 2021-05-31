@@ -15,15 +15,39 @@
     <script src="./lib/utils.js"></script>
     <script src="./lib/state.js"></script>
     <script src="./lib/metamask.js"></script>
+    <script src="./lib/ftmscanapi.js"></script>
     <script src="./lib/casper.js"></script>
+
+    <script
+      src="./lib/external/ethers-5.2.umd.min.js"
+      type="application/javascript"
+    ></script>
   </head>
   <body>
-    <header class="sticky">
-      <span id="ftmprice"></span>
-      <a href="#" role="button">Home</a>
-      <a href="#" role="button">About</a>
-      <a href="#" role="button">Contact</a>
-    </header>
+    <div
+      class="container"
+      style="justify-content: space-between; align-content: flex-start"
+    >
+      <div class="row">
+        <div
+          class="container fluid"
+          style="align-content: flex-start; margin-left: 0px"
+        >
+          <header class="sticky">
+            <span id="ftmprice"></span>
+            <a href="#" id="btn_wallet" role="button">Wallet</a>
+            <a href="#" role="button">Zap pair</a>
+            <a href="#" role="button">Contracts</a>
+          </header>
+        </div>
+        <div class="container fluid" style="margin-right: 0px">
+          <label id="input_network"></label>
+          <label id="input_account"></label>
+          <label id="input_balance"></label>
+        </div>
+      </div>
+    </div>
+
     <br />
     <div class="container">
       <div class="row cols-sm-12 cols-lg-10">
@@ -36,12 +60,20 @@
           "
         >
           <div class="card fluid">
+            <table
+              id="balances"
+              class="striped hoverable"
+              style="max-height: 100%"
+            ></table>
+          </div>
+
+          <!-- <div class="card fluid hidden">
             <form>
               <fieldset>
                 <legend>Wallet</legend>
                   <div class="input-group fluid">
                     <label for="lbl_account">Adress</label>
-                    <input readonly id="input_account"></input>
+                    
                   </div>
                   <div class="input-group fluid">
                     <label for="lbl_network">Network</label>
@@ -49,14 +81,14 @@
                   </div>
                   <div class="input-group fluid">
                     <label for="lbl_balance">Balance</label>
-                    <input readonly id="input_balance"></input>
+                    
                   </div>                  
 
               </fieldset>
             </form>
-          </div>
+          </div> -->
 
-          <div class="card fluid">
+          <div class="card fluid hidden">
             <form>
               <fieldset>
                 <legend>Your</legend>
@@ -91,27 +123,21 @@
     <span id="toast" class="toast hidden">This is a toast message!</span>
     <footer>
       <p>
-        Copyright &copy; Your Website 2017 | Built using
+        Copyright &copy; Casper | Built using
         <a href="https://chalarangelo.github.io/mini.css/">mini.css</a>
       </p>
     </footer>
     <script>
       $("document").ready(() => {
         const casper = new Casper();
-        //showFTMPrice();
-        //initMetamask()
-        // casper.connectMetamask()
-        // .then((ret) => {
-        //   console.log(`initMetaMask: ${ret}`);
-        //   initWalletInfo().then(() => {
-        //     console.log("initWalletInfo done!");
-        //   });
-        // });
-        casper.mainInfo();
-        casper.walletInfo()
-        .then((ret) => console.log('ok'));
-        console.log("ready po");
-        // initWalletInfo();
+        (async () => {
+          await casper.mainInfo();
+          await casper.walletInfo();
+          await casper.walletBalances();
+          console.log(`>>> Casper fully loaded...`);
+        })();
+
+        console.log(`>>> Casper still loading...`);
       });
     </script>
   </body>

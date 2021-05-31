@@ -2,8 +2,9 @@ class Metamask {
   constructor(message) {
     this.message = message;
     this.currentProvider = undefined;
+    this._signer = undefined;
     this.connected = false;
-    this.account = "";
+    this._account = "";
     this.network = "";
     this.balance = "";
   }
@@ -12,16 +13,29 @@ class Metamask {
     return this.connected;
   }
 
+  get account() {
+    return (async () => {
+      if (!this._account) {
+        await this.getAccount();
+      }
+      return this._account;
+    })();
+  }
+
   async connect() {
     this.connected = false;
-    this.currentProvider = await detectEthereumProvider();
-    if (this.currentProvider) {
-      if (this.currentProvider !== window.ethereum) {
+    this.injProvider = await detectEthereumProvider();
+    if (this.injProvider) {
+      if (this.injProvider !== window.ethereum) {
         this.message.showToast("Do you have multiple wallets installed?");
         console.error("Do you have multiple wallets installed?");
         return false;
       } else {
         this.message.showToast("Metamask connected!");
+        this.currentProvider = new ethers.providers.Web3Provider(
+          this.injProvider
+        );
+        this._signer = this.currentProvider.getSigner(0);
         this.connected = true;
         return true;
       }
@@ -52,7 +66,7 @@ class Metamask {
     // If the array of accounts is non-empty, you're already
     // connected.
     ethereum.on("accountsChanged", this.handleAccountsChanged);
-    return this.account;
+    return this._account;
   }
 
   handleAccountsChanged(accounts) {
@@ -60,8 +74,8 @@ class Metamask {
       // MetaMask is locked or the user has not connected any accounts
       this.message.showToast("Please connect to MetaMask.");
       console.log("Please connect to MetaMask.");
-    } else if (accounts[0] !== this.account) {
-      this.account = accounts[0];
+    } else if (accounts[0] !== this._account) {
+      this._account = accounts[0];
       // Do any other work!
     }
   }
@@ -89,7 +103,7 @@ class Metamask {
   async getBalance() {
     const balance = await ethereum.request({
       method: "eth_getBalance",
-      params: [this.account, "latest"],
+      params: [this._account, "latest"],
     });
     return parseInt(balance, 16) / 10 ** 18;
   }
