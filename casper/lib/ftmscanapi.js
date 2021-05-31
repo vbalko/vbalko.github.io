@@ -12,6 +12,18 @@ class FTMScan {
     }
   }
 
+  async getFTMBalance(adress) {
+    const url = `https://api.ftmscan.com/api?module=account&action=balance&address=${adress}&tag=latest&apikey=YourApiKeyToken`;
+    const balance = await this.makeAPICall(url);
+    return balance.result;
+  }
+
+  async getFTMTxs(adress) {
+    const url = `https://api.ftmscan.com/api?module=account&action=txlist&address=${adress}&startblock=0&endblock=99999999&sort=asc&apikey=YourApiKeyToken`;
+    const txs = await this.makeAPICall(url);
+    return txs.result;
+  }
+
   async getERC20Txs(adress) {
     const url = `https://api.ftmscan.com/api?module=account&action=tokentx&address=${adress}&startblock=0&endblock=999999999&sort=asc&apikey=YourApiKeyToken`;
     const txs = await this.makeAPICall(url);
@@ -48,7 +60,15 @@ class FTMScan {
       return isOut(adress, txn) ? (val *= -1) : val;
     };
 
-    const aHistory = await this.getERC20Txs(adress);
+    const aERC20Txs = await this.getERC20Txs(adress);
+    const FTMTxs = await this.getFTMTxs(adress);
+    const aHistory = aERC20Txs.concat(
+      FTMTxs.map((item) => {
+        item.tokenSymbol = "FTM";
+        item.tokenDecimal = 18;
+        return item;
+      })
+    );
     const aUniqueTokens = [...new Set(aHistory.map((item) => item.tokenSymbol))]
       .map((item) => {
         return {

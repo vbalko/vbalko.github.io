@@ -24,8 +24,14 @@ class Casper {
     await this.connectMetamask();
     const acc = await this.metamask.getAccount();
     const network = await this.metamask.getNetwork();
-    const balance = await this.metamask.getBalance();
-    this.ui.setWalletInfo(acc, network, `FTM: ${balance.toFixed(3)}`);
+    const balance = await this.FTMScan.getFTMBalance(
+      await this.metamask.account
+    ); //this.metamask.getBalance();
+    this.ui.setWalletInfo(
+      acc,
+      network,
+      `FTM: ${ethers.utils.formatEther(balance)}`
+    );
   }
 
   async mainInfo() {
@@ -48,6 +54,7 @@ class Casper {
     const aBalances = await this.FTMScan.getERC20TokensBalance(
       await this.metamask.account
     );
+
     const theader = `<caption>Wallet Balances</caption><thead><tr><th>Token</th><th>Balance</th></tr></thead><tbody>`;
     let table = aBalances.reduce((acc, curr) => {
       acc += `<tr><td>${curr.symbol}</td><td>${formatNr(
@@ -64,9 +71,36 @@ class Casper {
 
   async connectMetamask() {
     if (!this.isConnected) {
-      const connectOk = await this.metamask.connect();
+      this.ui.showToast("Connect to metamask");
+      //const connectOk = await this.metamask.connect();
     }
     return this.isConnected;
+  }
+
+  metamaskConnected() {
+    const casper = window.casper;
+    if (casper.isConnected) {
+      (async () => {
+        await casper.ui.toggleConnectButtonVisibility();
+        await casper.mainInfo();
+        await casper.walletInfo();
+        await casper.walletBalances();
+      })();
+    } else {
+      casper.ui.toggleConnectButtonVisibility();
+    }
+  }
+
+  setConnectMetamask() {
+    // $("#btn_connect").click(() => alert("abc"));
+    this.ui.handleConnectButton(this.metamask, this.metamask.requestConnect);
+    $(document).on("metamask:account:changed", this.metamaskConnected);
+    //this.metamask.requestConnect);
+    //   if (!this.isConnected) {
+    //     const connectOk = await this.metamask.connect();
+    //   }
+    //   return this.isConnected;
+    // }
   }
 }
 
@@ -147,6 +181,14 @@ class UIHanlder {
 
   displayTable(element, content) {
     $(`#${element}`).append(content);
+  }
+
+  toggleConnectButtonVisibility() {
+    $(`#btn_connect`).toggleClass("hidden");
+  }
+
+  handleConnectButton(data, handler) {
+    $(`#btn_connect`).click(data, handler);
   }
 }
 

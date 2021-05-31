@@ -22,7 +22,7 @@ class Metamask {
     })();
   }
 
-  async connect() {
+  async connect_() {
     this.connected = false;
     this.injProvider = await detectEthereumProvider();
     if (this.injProvider) {
@@ -45,6 +45,10 @@ class Metamask {
       return false;
     }
   }
+
+  // async connect() {
+  //     ethereum.request({ method: 'eth_requestAccounts' })
+  // }
 
   async getAccount() {
     /***********************************************************/
@@ -69,13 +73,35 @@ class Metamask {
     return this._account;
   }
 
+  async requestConnect(event) {
+    const that = this;
+    try {
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      event.data.handleAccountsChanged(accounts);
+    } catch (err) {
+      if (err.code === 4001) {
+        // EIP-1193 userRejectedRequest error
+        // If this happens, the user rejected the connection request.
+        console.log("Please connect to MetaMask.");
+      } else {
+        console.error(err);
+      }
+    }
+  }
+
   handleAccountsChanged(accounts) {
     if (accounts.length === 0) {
       // MetaMask is locked or the user has not connected any accounts
       this.message.showToast("Please connect to MetaMask.");
       console.log("Please connect to MetaMask.");
+      this.connected = false;
+      $(document).trigger("metamask:account:changed", this._account);
     } else if (accounts[0] !== this._account) {
       this._account = accounts[0];
+      this.connected = true;
+      $(document).trigger("metamask:account:changed", this._account);
       // Do any other work!
     }
   }

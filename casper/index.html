@@ -44,6 +44,7 @@
           <label id="input_network"></label>
           <label id="input_account"></label>
           <label id="input_balance"></label>
+          <a href="#" id="btn_connect" role="button">Connect</a>
         </div>
       </div>
     </div>
@@ -130,10 +131,12 @@
     <script>
       $("document").ready(() => {
         const casper = new Casper();
+        window.casper = casper;
         (async () => {
-          await casper.mainInfo();
-          await casper.walletInfo();
-          await casper.walletBalances();
+          casper.setConnectMetamask();
+          //await casper.mainInfo();
+          //await casper.walletInfo();
+          //await casper.walletBalances();
           console.log(`>>> Casper fully loaded...`);
         })();
 
