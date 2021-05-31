@@ -61,14 +61,15 @@ class FTMScan {
     };
 
     const aERC20Txs = await this.getERC20Txs(adress);
-    const FTMTxs = await this.getFTMTxs(adress);
-    const aHistory = aERC20Txs.concat(
-      FTMTxs.map((item) => {
-        item.tokenSymbol = "FTM";
-        item.tokenDecimal = 18;
-        return item;
-      })
-    );
+    const aHistory = [].concat(aERC20Txs);
+    // const FTMTxs = await this.getFTMTxs(adress);
+    // const aHistory = aERC20Txs.concat(
+    //   FTMTxs.map((item) => {
+    //     item.tokenSymbol = "FTM";
+    //     item.tokenDecimal = 18;
+    //     return item;
+    //   })
+    // );
     const aUniqueTokens = [...new Set(aHistory.map((item) => item.tokenSymbol))]
       .map((item) => {
         return {
@@ -78,6 +79,15 @@ class FTMScan {
       })
       .filter((item) => item);
 
-    return aUniqueTokens;
+    //workaround - FTM balance se pocita nejak divne, tak balance doplnim z api
+
+    return aUniqueTokens.concat([
+      {
+        symbol: "FTM",
+        amount: ethers.utils.formatEther(await this.getFTMBalance(adress)),
+      },
+    ]);
+
+    // return aUniqueTokens;
   }
 }

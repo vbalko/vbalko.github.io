@@ -47,6 +47,7 @@ class Casper {
 
   async walletBalances() {
     const formatNr = (nr) => {
+      if ($.type(nr) === "string") return nr;
       if (!nr) return nr;
       if (nr.toFixed(3) == 0) return nr.toFixed(18);
       return nr;
