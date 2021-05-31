@@ -10,11 +10,16 @@
       href="https://minicss.org/flavorFiles/mini-nord.min.css"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.5/web3.min.js"></script>
+    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="./lib/utils.js"></script>
+    <script src="./lib/state.js"></script>
+    <script src="./lib/metamask.js"></script>
     <script src="./lib/casper.js"></script>
   </head>
   <body>
     <header class="sticky">
+      <span id="ftmprice"></span>
       <a href="#" role="button">Home</a>
       <a href="#" role="button">About</a>
       <a href="#" role="button">Contact</a>
@@ -30,21 +35,28 @@
             justify-content: space-around;
           "
         >
-          <div class="card">
+          <div class="card fluid">
             <form>
               <fieldset>
                 <legend>Wallet</legend>
-                <div class="input-group fluid">
-                  <label>Adress</label>
-                  <label id='lbl_adress'></label>
-                  <label>Network</label>
-                  <label id='lbl_network'></label>                  
-                </div>
+                  <div class="input-group fluid">
+                    <label for="lbl_account">Adress</label>
+                    <input readonly id="input_account"></input>
+                  </div>
+                  <div class="input-group fluid">
+                    <label for="lbl_network">Network</label>
+                    <input readonly id="input_network"></input>
+                  </div>
+                  <div class="input-group fluid">
+                    <label for="lbl_balance">Balance</label>
+                    <input readonly id="input_balance"></input>
+                  </div>                  
+
               </fieldset>
             </form>
           </div>
 
-          <div class="card">
+          <div class="card fluid">
             <form>
               <fieldset>
                 <legend>Your</legend>
@@ -85,9 +97,21 @@
     </footer>
     <script>
       $("document").ready(() => {
-        initMetamask();
-        console.log('aa');
-        initWalletInfo();
+        const casper = new Casper();
+        //showFTMPrice();
+        //initMetamask()
+        // casper.connectMetamask()
+        // .then((ret) => {
+        //   console.log(`initMetaMask: ${ret}`);
+        //   initWalletInfo().then(() => {
+        //     console.log("initWalletInfo done!");
+        //   });
+        // });
+        casper.mainInfo();
+        casper.walletInfo()
+        .then((ret) => console.log('ok'));
+        console.log("ready po");
+        // initWalletInfo();
       });
     </script>
   </body>
