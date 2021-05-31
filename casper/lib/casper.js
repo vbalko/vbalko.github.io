@@ -32,7 +32,7 @@ class Casper {
     await this.connectMetamask();
     const updateFTM = async () => {
       const ftm = await utils.getFTMPrice();
-      this.ui.setFTMPrice(`FTM: ${ftm}`);
+      this.ui.setFTMPrice(`FTM: $${ftm}`);
     };
     updateFTM();
     //update price every 60s
