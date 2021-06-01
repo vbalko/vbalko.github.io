@@ -66,6 +66,17 @@ class Casper {
     table += `</tbody>`;
 
     this.ui.displayTable("balances", table);
+    this.ui.handleWalletBalanceRowClick(
+      { tab: aBalances, account: await this.metamask.account },
+      (event) => {
+        const tokenSymbol = $(event.currentTarget).children("td:eq(0)").text();
+        const row = event.data.tab.find((item) => item.symbol === tokenSymbol);
+        window.open(
+          `https://ftmscan.com/token/${row.contract}?a=${event.data.account}`
+        );
+        //alert(`${row.contract}`);
+      }
+    );
 
     //console.table(table);
   }
@@ -190,6 +201,10 @@ class UIHanlder {
 
   handleConnectButton(data, handler) {
     $(`#btn_connect`).click(data, handler);
+  }
+
+  handleWalletBalanceRowClick(data, handler) {
+    $(`#balances tr`).click(data, handler);
   }
 }
 

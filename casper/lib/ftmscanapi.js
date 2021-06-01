@@ -60,6 +60,10 @@ class FTMScan {
       return isOut(adress, txn) ? (val *= -1) : val;
     };
 
+    const getTokenContract = (aTxs, token) => {
+      return aTxs.find((item) => item.tokenSymbol === token).contractAddress;
+    };
+
     const aERC20Txs = await this.getERC20Txs(adress);
     const aHistory = [].concat(aERC20Txs);
     // const FTMTxs = await this.getFTMTxs(adress);
@@ -75,6 +79,7 @@ class FTMScan {
         return {
           symbol: item,
           amount: sumHistoryTokenAmount(aHistory, item),
+          contract: getTokenContract(aHistory, item),
         };
       })
       .filter((item) => item);
@@ -85,6 +90,7 @@ class FTMScan {
       {
         symbol: "FTM",
         amount: ethers.utils.formatEther(await this.getFTMBalance(adress)),
+        contract: "0x4e15361fd6b4bb609fa63c81a2be19d873717870",
       },
     ]);
 
