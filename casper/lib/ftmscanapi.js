@@ -63,6 +63,9 @@ class FTMScan {
     const getTokenContract = (aTxs, token) => {
       return aTxs.find((item) => item.tokenSymbol === token).contractAddress;
     };
+    const getTokenName = (aTxs, token) => {
+      return aTxs.find((item) => item.tokenSymbol === token).tokenName;
+    };
 
     const aERC20Txs = await this.getERC20Txs(adress);
     //remove transactions, where from and to are same - dont have effect on balance when you send tokens to yourself
@@ -81,6 +84,7 @@ class FTMScan {
       .map((item) => {
         return {
           symbol: item,
+          name: getTokenName(aHistory, item),
           amount: sumHistoryTokenAmount(aHistory, item),
           contract: getTokenContract(aHistory, item),
         };
@@ -92,6 +96,7 @@ class FTMScan {
     return aUniqueTokens.concat([
       {
         symbol: "FTM",
+        name: "Fantom",
         amount: ethers.utils.formatEther(await this.getFTMBalance(adress)),
         contract: "0x4e15361fd6b4bb609fa63c81a2be19d873717870",
       },

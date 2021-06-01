@@ -56,9 +56,9 @@ class Casper {
       await this.metamask.account
     );
 
-    const theader = `<caption>Wallet Balances</caption><thead><tr><th>Token</th><th>Balance</th></tr></thead><tbody>`;
+    const theader = `<caption>Wallet Balances</caption><thead><tr><th>Token</th><th>Name</th><th>Balance</th></tr></thead><tbody>`;
     let table = aBalances.reduce((acc, curr) => {
-      acc += `<tr><td>${curr.symbol}</td><td>${formatNr(
+      acc += `<tr><td>${curr.symbol}</td><td>${curr.name}</td><td>${formatNr(
         curr.amount
       )}</td></tr>`;
       return acc;
