@@ -83,10 +83,20 @@ class Casper {
 
   async connectMetamask() {
     if (!this.isConnected) {
-      this.ui.showToast("Connect to metamask");
+      this.message.showToast("Connect to metamask");
       //const connectOk = await this.metamask.connect();
     }
     return this.isConnected;
+  }
+
+  async test() {
+    this.chainUtils = new chainUtils(this.metamask);
+    await this.chainUtils.init();
+    const ret = await this.chainUtils.findFantomPairingData(
+      "0x841FAD6EAe12c286d1Fd18d1d525DFfA75C7EFFE"
+    );
+
+    console.log(ret);
   }
 
   metamaskConnected() {
@@ -97,6 +107,8 @@ class Casper {
         await casper.mainInfo();
         await casper.walletInfo();
         await casper.walletBalances();
+
+        //await casper.test();
       })();
     } else {
       casper.ui.toggleConnectButtonVisibility();
@@ -107,6 +119,7 @@ class Casper {
     // $("#btn_connect").click(() => alert("abc"));
     this.ui.handleConnectButton(this.metamask, this.metamask.requestConnect);
     $(document).on("metamask:account:changed", this.metamaskConnected);
+    $(document).on("metamask:chain:changed", (event) => alert("chain"));
     //this.metamask.requestConnect);
     //   if (!this.isConnected) {
     //     const connectOk = await this.metamask.connect();

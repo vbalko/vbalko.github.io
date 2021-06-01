@@ -65,7 +65,10 @@ class FTMScan {
     };
 
     const aERC20Txs = await this.getERC20Txs(adress);
-    const aHistory = [].concat(aERC20Txs);
+    //remove transactions, where from and to are same - dont have effect on balance when you send tokens to yourself
+    const aHistory = []
+      .concat(aERC20Txs)
+      .filter((item) => item.to != item.from);
     // const FTMTxs = await this.getFTMTxs(adress);
     // const aHistory = aERC20Txs.concat(
     //   FTMTxs.map((item) => {

@@ -7,6 +7,7 @@ class Metamask {
     this._account = "";
     this.network = "";
     this.balance = "";
+    this.onFantom = false;
   }
 
   get isConnected() {
@@ -22,7 +23,7 @@ class Metamask {
     })();
   }
 
-  async connect_() {
+  async connect() {
     this.connected = false;
     this.injProvider = await detectEthereumProvider();
     if (this.injProvider) {
@@ -80,6 +81,7 @@ class Metamask {
         method: "eth_requestAccounts",
       });
       event.data.handleAccountsChanged(accounts);
+      await event.data.connect();
     } catch (err) {
       if (err.code === 4001) {
         // EIP-1193 userRejectedRequest error
@@ -122,6 +124,7 @@ class Metamask {
 
   handleChainChanged(_chainId) {
     this.network = _chainId;
+    $(document).trigger("metamask:chain:changed", this._chainId);
     // We recommend reloading the page, unless you must do otherwise
     window.location.reload();
   }
