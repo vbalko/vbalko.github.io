@@ -1,5 +1,9 @@
+import { message } from "./message.js";
+import { state } from "../state.js";
+
 class Metamask {
-  constructor(message) {
+  constructor() {
+    this.state = undefined;
     this.message = message;
     this.currentProvider = undefined;
     this._signer = undefined;
@@ -14,6 +18,10 @@ class Metamask {
     return this.connected;
   }
 
+  setState(state) {
+    this.state = state;
+  }
+
   get account() {
     return (async () => {
       if (!this._account) {
@@ -21,6 +29,13 @@ class Metamask {
       }
       return this._account;
     })();
+  }
+
+  /*
+  prepare contract with current provider
+  */
+  async getContract(adress, abi) {
+    return await new ethers.Contract(adress, abi, this._signer);
   }
 
   async connect() {
@@ -38,6 +53,10 @@ class Metamask {
         );
         this._signer = this.currentProvider.getSigner(0);
         this.connected = true;
+        $(document).trigger(
+          this.state.topicNames.metamask.account.connected,
+          this._account
+        );
         return true;
       }
     } else {
@@ -64,7 +83,7 @@ class Metamask {
       // Some unexpected error.
       // For backwards compatibility reasons, if no accounts are available,
       // eth_accounts will return an empty array.
-      console.error(err);
+      console.log(err);
     }
 
     // Note that this event is emitted on page load.
@@ -88,7 +107,7 @@ class Metamask {
         // If this happens, the user rejected the connection request.
         console.log("Please connect to MetaMask.");
       } else {
-        console.error(err);
+        console.log(err);
       }
     }
   }
@@ -99,11 +118,21 @@ class Metamask {
       this.message.showToast("Please connect to MetaMask.");
       console.log("Please connect to MetaMask.");
       this.connected = false;
-      $(document).trigger("metamask:account:changed", this._account);
+      $(document).trigger(
+        this.state.topicNames.metamask.account.changed,
+        this._account
+      );
+      $.Topic(this.events.state.changed).publish("hello world!");
     } else if (accounts[0] !== this._account) {
       this._account = accounts[0];
       this.connected = true;
-      $(document).trigger("metamask:account:changed", this._account);
+      $(document).trigger(
+        this.state.topicNames.metamask.account.changed,
+        this._account
+      );
+      $.Topic(this.state.topicNames.metamask.account.changed).publish(
+        this._account
+      );
       // Do any other work!
     }
   }
@@ -137,3 +166,5 @@ class Metamask {
     return parseInt(balance, 16) / 10 ** 18;
   }
 }
+
+export const metamask = new Metamask();

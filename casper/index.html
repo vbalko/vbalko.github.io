@@ -17,10 +17,10 @@
     <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="./lib/utils.js"></script>
-    <script src="./lib/state.js"></script>
-    <script src="./lib/metamask.js"></script>
-    <script src="./lib/ftmscanapi.js"></script>
-    <script src="./lib/casper.js"></script>
+    <!-- <script src="./lib/state.js"></script> -->
+    <!-- <script src="./lib/metamask.js"></script> -->
+    <!-- <script src="./lib/ftmscanapi.js"></script> -->
+    <script type="module" src="./lib/casper.js"></script>
   </head>
   <body>
     <div
@@ -34,9 +34,10 @@
         >
           <header class="sticky">
             <span id="ftmprice"></span>
-            <a href="#" id="btn_wallet" role="button">Wallet</a>
-            <a href="#" role="button">Zap pair</a>
-            <a href="#" role="button">Contracts</a>
+            <a href="#" id="btn_wallet" role="button">Balances</a>
+            <a href="#" id="btn_analytics" role="button">Analysis</a>
+            <a href="#" id="btn_zap" role="button">Zap pair</a>
+            <a href="#" id="btn_contracts" role="button">Contracts</a>
           </header>
         </div>
         <div class="container fluid" style="margin-right: 0px">
@@ -49,7 +50,7 @@
     </div>
 
     <br />
-    <div class="container">
+    <div id="walletTab" class="container">
       <div class="row cols-sm-12 cols-lg-10">
         <!-- Add the extra style to make card spacing look better -->
         <div
@@ -120,6 +121,66 @@
         </div>
       </div>
     </div>
+    <div id="analyticsTab" class="container">
+      <div class="row cols-sm-12 cols-lg-10">
+        <!-- Add the extra style to make card spacing look better -->
+        <div
+          class="col-lg-offset-1 row"
+          style="
+            -webkit-justify-content: space-around;
+            justify-content: space-around;
+          "
+        >
+          <div class="card fluid">
+            <table
+              id="balances"
+              class="striped hoverable"
+              style="max-height: 100%"
+            ></table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="zapTab" class="container">
+      <div class="row cols-sm-12 cols-lg-10">
+        <!-- Add the extra style to make card spacing look better -->
+        <div
+          class="col-lg-offset-1 row"
+          style="
+            -webkit-justify-content: space-around;
+            justify-content: space-around;
+          "
+        >
+          <div class="card fluid">
+            <table
+              id="balances"
+              class="striped hoverable"
+              style="max-height: 100%"
+            ></table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="contractsTab" class="container">
+      <div class="row cols-sm-12 cols-lg-10">
+        <!-- Add the extra style to make card spacing look better -->
+        <div
+          class="col-lg-offset-1 row"
+          style="
+            -webkit-justify-content: space-around;
+            justify-content: space-around;
+          "
+        >
+          <div class="card fluid">
+            <table
+              id="balances"
+              class="striped hoverable"
+              style="max-height: 100%"
+            ></table>
+          </div>
+        </div>
+      </div>
+    </div>
     <span id="toast" class="toast hidden">This is a toast message!</span>
     <footer>
       <p>
@@ -127,10 +188,13 @@
         <a href="https://chalarangelo.github.io/mini.css/">mini.css</a>
       </p>
     </footer>
-    <script>
+    <script type="module">
+      import { Casper } from "./lib/casper.js";
+
       $("document").ready(() => {
         const casper = new Casper();
         window.casper = casper;
+
         (async () => {
           casper.setConnectMetamask();
           //await casper.mainInfo();

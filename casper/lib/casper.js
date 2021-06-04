@@ -1,11 +1,20 @@
-class Casper {
+import { message } from "./tools/message.js";
+import { Analytics } from "./analytics/index.js";
+import { state } from "./state.js";
+import { uiHanlder } from "./ui/uihandler.js";
+import { config } from "./config.js";
+
+export class Casper {
   constructor() {
     console.log(`>>> Casper initialized`);
-    this.state = new State();
-    this.message = new Messages("toast");
-    this.state.metamask = new Metamask(this.message);
-    this.state.FTMScan = new FTMScan(this.message);
-    this.ui = new UIHanlder();
+    this.state = state; //new State();
+    // export const mm =new Messages("toast");
+    this.message = message;
+    // this.state.metamask = metamask;
+    //this.state.FTMScan = new FTMScan(this.message);
+    this.ui = uiHanlder;
+
+    //this.analytics = new Analytics("", this.message);
   }
 
   get isConnected() {
@@ -92,10 +101,24 @@ class Casper {
   async test() {
     this.chainUtils = new chainUtils(this.metamask);
     await this.chainUtils.init();
-    const ret = await this.chainUtils.findFantomPairingData(
-      "0x841FAD6EAe12c286d1Fd18d1d525DFfA75C7EFFE"
+    //await this.chainUtils.findFantomUSDPrice();
+    this.analytics = new Analytics("", this.message);
+    const ret = await this.chainUtils.getYields(
+      await this.chainUtils.getContractObj(
+        "0x8aC0Cd0710AD12D9748e3638CFB65296cF13F916",
+        abis.strategyAbiBoo
+      ),
+      0,
+      await this.chainUtils.getContractObj(
+        "0xEc7178F4C41f346b2721907F5cF7628E388A7a58",
+        abis.reaperVaultAbi
+      ),
+      { depositFee: "0", interestFee: "0.045", withdrawFee: "0" },
+      "1"
     );
-
+    // const ret = await this.chainUtils.findFantomPairingData(
+    //   "0x841FAD6EAe12c286d1Fd18d1d525DFfA75C7EFFE"
+    // );
     console.log(ret);
   }
 
@@ -108,7 +131,7 @@ class Casper {
         await casper.walletInfo();
         await casper.walletBalances();
 
-        //await casper.test();
+        await casper.test();
       })();
     } else {
       casper.ui.toggleConnectButtonVisibility();
@@ -128,100 +151,3 @@ class Casper {
     // }
   }
 }
-
-class Messages {
-  constructor(element) {
-    this.elementName = element;
-    this.element = $(`#${element}`);
-  }
-
-  showToast = (text, timeout = 2500) => {
-    this.element.html(text);
-    this.element.removeClass("hidden");
-    window.setTimeout(() => {
-      this.element.addClass("hidden");
-    }, timeout);
-  };
-}
-
-class UIHanlder {
-  constructor() {
-    this.dummy = "coming soon";
-    this.elements = {
-      main: {
-        ftmprice: { id: "#ftmprice", method: "html", mark: true },
-      },
-      wallet: {
-        account: {
-          id: "#input_account",
-          method: "html",
-          mark: false,
-          small: true,
-        },
-        network: {
-          id: "#input_network",
-          method: "html",
-          mark: false,
-          small: true,
-        },
-        balance: {
-          id: "#input_balance",
-          method: "html",
-          mark: false,
-          small: true,
-        },
-      },
-    };
-  }
-
-  setWalletInfo(account, network, balance) {
-    console.log(`Account: ${account}`);
-    console.log(`Network: ${network}`);
-    console.log(`Balance: ${balance}`);
-    this.setElementValue(this.elements.wallet.account, account);
-    this.setElementValue(this.elements.wallet.network, network);
-    this.setElementValue(this.elements.wallet.balance, balance);
-  }
-
-  setFTMPrice(message) {
-    console.log(`FTMPrice: ${message}`);
-    this.setElementValue(this.elements.main.ftmprice, message);
-  }
-
-  setElementValue(element, value) {
-    if (element.mark) {
-      value = `<mark>${value}</mark>`;
-    }
-    if (element.small) {
-      value = `<small>${value}</small>`;
-    }
-    const el = $(element.id);
-    if (element.method === "html") {
-      el.html(value || this.dummy);
-    }
-    if (element.method === "val") {
-      el.val(value || this.dummy);
-    }
-  }
-
-  displayTable(element, content) {
-    $(`#${element}`).append(content);
-  }
-
-  toggleConnectButtonVisibility() {
-    $(`#btn_connect`).toggleClass("hidden");
-  }
-
-  handleConnectButton(data, handler) {
-    $(`#btn_connect`).click(data, handler);
-  }
-
-  handleWalletBalanceRowClick(data, handler) {
-    $(`#balances tr`).click(data, handler);
-  }
-}
-
-const showFTMPrice = async () => {
-  const price = await utils.getFTMPrice();
-  $("#ftmprice").html(`<mark>FTM: ${price}</mark>` || "coming soon");
-};
