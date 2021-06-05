@@ -1,13 +1,15 @@
+import { state } from "../state.js";
+
 class UIHanlder {
   constructor() {
-    this.events = {
-      menu: {
-        wallet: "ui:menu:wallet",
-        analytics: "ui:menu:analytics",
-        zap: "ui:menu:zap",
-        contracts: "ui:menu:contracts",
-      },
-    };
+    // this.events = {
+    //   menu: {
+    //     wallet: "ui:menu:wallet",
+    //     analytics: "ui:menu:analytics",
+    //     zap: "ui:menu:zap",
+    //     contracts: "ui:menu:contracts",
+    //   },
+    // };
     this.dummy = "coming soon";
     this.elements = {
       main: {
@@ -15,18 +17,22 @@ class UIHanlder {
         menu: {
           wallet: {
             id: "#btn_wallet",
-            event: this.events.menu.wallet,
+            event: state.topicNames.ui.menu.wallet,
             mark: true,
           },
           analytics: {
             id: "#btn_analytics",
-            event: this.events.menu.analytics,
+            event: state.topicNames.ui.menu.analytics,
             mark: true,
           },
-          zap: { id: "#btn_zap", event: this.events.menu.zap, mark: true },
+          zap: {
+            id: "#btn_zap",
+            event: state.topicNames.ui.menu.zap,
+            mark: true,
+          },
           contracts: {
             id: "#btn_contracts",
-            event: this.events.menu.contracts,
+            event: state.topicNames.ui.menu.contracts,
             mark: true,
           },
         },
@@ -63,22 +69,25 @@ class UIHanlder {
     for (let item in this.elements.main.menu) {
       let el = this.elements.main.menu[item];
       $(el.id).click(() => {
-        $(document).trigger(el.event, this);
+        //$(document).trigger(el.event, this);
+        $.Topic(state.topicNames.ui.menuTabChanged).publish(el.event);
+        $.Topic(el.event).publishWith(this, [el.event]);
       });
 
       //subscribe to main menu events
-      $(document).on(el.event, this.handleMainMenu);
+      //$(document).on(el.event, this.handleMainMenu);
+      $.Topic(el.event).subscribe(this.handleMainMenu);
     }
   }
 
   handleMainMenu(event) {
-    const that = window.casper.ui;
-    that.hideAllMenuContainers();
-    if (event.type === that.events.menu.wallet) {
+    //const that = window.casper.ui;
+    this.hideAllMenuContainers();
+    if (event === state.topicNames.ui.menu.wallet) {
       $("#walletTab").removeClass("hidden");
     }
 
-    if (event.type === that.events.menu.analysis) {
+    if (event === state.topicNames.ui.menu.analytics) {
       $("#analyticsTab").removeClass("hidden");
     }
   }

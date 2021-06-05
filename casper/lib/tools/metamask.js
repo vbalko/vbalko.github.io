@@ -3,7 +3,7 @@ import { state } from "../state.js";
 
 class Metamask {
   constructor() {
-    this.state = undefined;
+    //this.state = undefined;
     this.message = message;
     this.currentProvider = undefined;
     this._signer = undefined;
@@ -18,9 +18,9 @@ class Metamask {
     return this.connected;
   }
 
-  setState(state) {
-    this.state = state;
-  }
+  // setState(state) {
+  //   this.state = state;
+  // }
 
   get account() {
     return (async () => {
@@ -53,10 +53,10 @@ class Metamask {
         );
         this._signer = this.currentProvider.getSigner(0);
         this.connected = true;
-        $(document).trigger(
-          this.state.topicNames.metamask.account.connected,
-          this._account
-        );
+        // $(document).trigger(
+        //   this.state.topicNames.metamask.account.connected,
+        //   this._account
+        // );
         return true;
       }
     } else {
@@ -118,21 +118,19 @@ class Metamask {
       this.message.showToast("Please connect to MetaMask.");
       console.log("Please connect to MetaMask.");
       this.connected = false;
-      $(document).trigger(
-        this.state.topicNames.metamask.account.changed,
-        this._account
-      );
+      // $(document).trigger(
+      //   this.state.topicNames.metamask.account.changed,
+      //   this._account
+      // );
       $.Topic(this.events.state.changed).publish("hello world!");
     } else if (accounts[0] !== this._account) {
       this._account = accounts[0];
       this.connected = true;
-      $(document).trigger(
-        this.state.topicNames.metamask.account.changed,
-        this._account
-      );
-      $.Topic(this.state.topicNames.metamask.account.changed).publish(
-        this._account
-      );
+      // $(document).trigger(
+      //   state.topicNames.metamask.account.changed,
+      //   this._account
+      // );
+      $.Topic(state.topicNames.metamask.account.changed).publish(this._account);
       // Do any other work!
     }
   }
@@ -153,7 +151,8 @@ class Metamask {
 
   handleChainChanged(_chainId) {
     this.network = _chainId;
-    $(document).trigger("metamask:chain:changed", this._chainId);
+    //$(document).trigger("metamask:chain:changed", this._chainId);
+    $.Topic(state.topicNames.metamask.chain.changed).publish(this._chainId);
     // We recommend reloading the page, unless you must do otherwise
     window.location.reload();
   }

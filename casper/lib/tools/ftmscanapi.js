@@ -1,4 +1,5 @@
 import { message } from "./message.js";
+import { state } from "../state.js";
 
 class FTMScan {
   constructor() {
@@ -29,6 +30,7 @@ class FTMScan {
   async getERC20Txs(adress = this.adress) {
     const url = `https://api.ftmscan.com/api?module=account&action=tokentx&address=${adress}&startblock=0&endblock=999999999&sort=asc&apikey=YourApiKeyToken`;
     const txs = await this.makeAPICall(url);
+    state.ERC20Txs = txs.result;
     return txs.result;
   }
 

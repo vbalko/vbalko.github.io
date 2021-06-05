@@ -18,6 +18,7 @@ export class Analytics {
     //this.findAnalyticsPairs();
     this.waka = new WakaFarm();
     //console.log(this.waka.providerName);
+    $.Topic(state.topicNames.analytics.txLoaded).publish("abc");
     this.subscribeToAccountConnected();
   }
 

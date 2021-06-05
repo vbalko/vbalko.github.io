@@ -122,7 +122,7 @@ export class Casper {
     console.log(ret);
   }
 
-  metamaskConnected() {
+  metamaskConnected(event) {
     const casper = window.casper;
     if (casper.isConnected) {
       (async () => {
@@ -141,8 +141,14 @@ export class Casper {
   setConnectMetamask() {
     // $("#btn_connect").click(() => alert("abc"));
     this.ui.handleConnectButton(this.metamask, this.metamask.requestConnect);
-    $(document).on("metamask:account:changed", this.metamaskConnected);
-    $(document).on("metamask:chain:changed", (event) => alert("chain"));
+    //$(document).on("metamask:account:changed", this.metamaskConnected);
+    $.Topic(state.topicNames.metamask.account.changed).subscribe(
+      this.metamaskConnected
+    );
+    // $(document).on("metamask:chain:changed", (event) => alert("chain"));
+    $.Topic(state.topicNames.metamask.chain.changed).subscribe((event) =>
+      alert("chain changed")
+    );
     //this.metamask.requestConnect);
     //   if (!this.isConnected) {
     //     const connectOk = await this.metamask.connect();

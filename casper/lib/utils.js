@@ -493,6 +493,7 @@ class chainUtils {
     let emissionsPerWeekm = (emissionsPerSec * 604800) / (1 + 0);
     let emissionsPerMonthm = (emissionsPerSec * 2592000) / (1 + 0);
     let emissionsPerYearm = (emissionsPerSec * 31104000) / (1 + 0);
+    // orig
     const dpr = emissionsPerDay / (farmValue * (1 + depFee));
     const dpy = (1 + dpr / 96) ** 96 - 1;
 
@@ -505,6 +506,7 @@ class chainUtils {
     const apr = emissionsPerYear / (farmValue * (1 + depFee));
     const apy = (1 + apr / 35040) ** 35040 - 1;
 
+    // man daily
     const dprm = emissionsPerDaym / (farmValue * (1 + 0));
     const dpym = (1 + dprm / 1) ** 1 - 1;
 
@@ -512,27 +514,49 @@ class chainUtils {
     const wpym = (1 + wprm / 7) ** 7 - 1;
 
     const mprm = emissionsPerMonthm / (farmValue * (1 + 0));
-    const mpym = (1 + mprm / 1) ** 1 - 1;
+    const mpym = (1 + mprm / 30) ** 30 - 1;
 
     const aprm = emissionsPerYearm / (farmValue * (1 + 0));
-    const apym = (1 + aprm / 2) ** 2 - 1;
+    const apym = (1 + aprm / 365) ** 365 - 1;
+
+    // reaper without fee
+
+    const dprf = emissionsPerDaym / (farmValue * (1 + 0));
+    const dpyf = (1 + dprf / 96) ** 96 - 1;
+
+    const wprf = emissionsPerWeekm / (farmValue * (1 + 0));
+    const wpyf = (1 + wprf / 672) ** 672 - 1;
+
+    const mprf = emissionsPerMonthm / (farmValue * (1 + 0));
+    const mpyf = (1 + mprf / 2880) ** 2880 - 1;
+
+    const aprf = emissionsPerYearm / (farmValue * (1 + 0));
+    const apyf = (1 + aprf / 35040) ** 35040 - 1;
 
     const yields = {
-      orig: {
-        day: dpy * 100,
-        week: wpy * 100,
-        month: mpy * 100,
-        year: apy * 100,
+      reaper: {
+        dpy: dpy * 100,
+        wpy: wpy * 100,
+        mpy: mpy * 100,
+        apy: apy * 100,
+      },
+      reaper_nofee: {
+        dpy: dpyf * 100,
+        wpy: wpyf * 100,
+        mpy: mpyf * 100,
+        apy: apyf * 100,
+      },
+      nocomp: {
         dpr: dpr * 100,
         wpr: wpr * 100,
         mpr: mpr * 100,
         apr: apr * 100,
       },
-      man: {
-        day: dpym * 100,
-        week: wpym * 100,
-        month: mpym * 100,
-        year: apym * 100,
+      daily_nofee: {
+        dpy: dpym * 100,
+        wpy: wpym * 100,
+        mpy: mpym * 100,
+        apy: apym * 100,
       },
     };
 

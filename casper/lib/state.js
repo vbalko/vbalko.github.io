@@ -3,7 +3,7 @@ import { metamask } from "./tools/metamask.js";
 import { FTMApi } from "./tools/ftmscanapi.js";
 class State {
   constructor() {
-    metamask.setState(this);
+    //metamask.setState(this);
     this._metamask = {
       provider: metamask,
     };
@@ -16,6 +16,10 @@ class State {
       tokens: [],
     };
 
+    this._ui = {
+      activeMenu: "",
+    };
+
     this.message = message;
 
     this._topicNames = {
@@ -25,9 +29,21 @@ class State {
           connected: "metamask:account:connected",
           disconnected: "metamask:account:disconnected",
         },
+        chain: {
+          changed: "metamask:chain:changed",
+        },
       },
       analytics: {
         txLoaded: "analytics:tx:loaded",
+      },
+      ui: {
+        menuTabChanged: "ui:menu:changed",
+        menu: {
+          wallet: "ui:menu:wallet",
+          analytics: "ui:menu:analytics",
+          zap: "ui:menu:zap",
+          contracts: "ui:menu:contracts",
+        },
       },
     };
 
@@ -44,6 +60,10 @@ class State {
     */
     this.topics = {};
     this.topicEnginePrepare();
+
+    $.Topic(this.topicNames.ui.menuTabChanged).subscribe(
+      (menu) => (this._ui.activeMenu = menu)
+    );
   }
 
   //
@@ -58,6 +78,7 @@ class State {
         callbacks = $.Callbacks();
         topic = {
           publish: callbacks.fire,
+          publishWith: callbacks.fireWith,
           subscribe: callbacks.add,
           unsubscribe: callbacks.remove,
         };
