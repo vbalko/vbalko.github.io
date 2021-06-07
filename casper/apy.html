@@ -83,15 +83,17 @@
       // Callback that creates and populates a data table,
       // instantiates a dashboard, a range slider and a pie chart,
       // passes in the data and draws it.
-      function drawDashboard(fee, amount, interval) {
+      function drawDashboard(fee, amount, interval, basicapr) {
         // Create our data table.
         const data = new google.visualization.DataTable();
         data.addColumn("number", "Day");
         data.addColumn("number", "No Compound");
         data.addColumn("number", "Compound no fee");
         data.addColumn("number", "Compound with fee");
+        // data.addColumn("number", "Compound effect");
+        // data.addColumn("number", "Compound effect - fee");
 
-        data.addRows(prepareChartData(fee, amount, interval));
+        data.addRows(prepareChartData(fee, amount, interval, basicapr));
 
         // Create a dashboard.
         var dashboard = new google.visualization.Dashboard(
@@ -148,16 +150,22 @@
         lineChart.draw();
       }
 
-      function prepareChartData(fee = 0.045, amount = 1000, minutes = 15) {
+      function prepareChartData(
+        fee = 0.045,
+        amount = 1000,
+        minutes = 15,
+        basicapr = 205
+      ) {
         const minutesPerDay = 60 * 24;
         const minFactorDay = minutesPerDay / minutes;
         const minFactorWeek = minFactorDay * 7;
         const minFactorMonth = minFactorDay * 30;
-        const minFactorYear = minFactorMonth * 12;
+        const minFactorYear = minFactorDay * 365;
 
-        const farmValue = 10170800.1554813;
-        const poolEmissions = 0.117937656650904;
-        const EmmisionsPerSec = 0.663825118487513;
+        //const farmValue = 10 ** 6; //10170800.1554813;
+
+        // const poolEmissions = 0.117937656650904;
+        const EmmisionsPerSec = 1; //0.663825118487513;
         const emissionsPerDay = EmmisionsPerSec * 60 * 60 * 24;
         const emissionsPerWeek = EmmisionsPerSec * 60 * 60 * 24 * 7;
         const emissionsPerMonth = EmmisionsPerSec * 60 * 60 * 24 * 30;
@@ -166,6 +174,8 @@
         const emissionsPerWeekFee = emissionsPerWeek / (1 + fee);
         const emissionsPerMonthFee = emissionsPerMonth / (1 + fee);
         const emissionsPerYearFee = emissionsPerYear / (1 + fee);
+
+        const farmValue = emissionsPerYear / (basicapr / 100);
 
         const apr = emissionsPerYear / farmValue;
         const aprFee = emissionsPerYearFee / farmValue;
@@ -240,13 +250,19 @@
         showTable(tab);
 
         const rows = [];
-
+        const dpr = getApr(emissionsPerDay, farmValue, false);
+        const dprfee = getApr(emissionsPerDayFee, farmValue, false);
         for (let i = 0; i < 365; i++) {
           let row = [];
           row.push(i);
-          row.push(((amount * apr) / 365) * i);
-          row.push(((amount * apy) / 365) * i);
-          row.push(((amount * apyfee) / 365) * i);
+          //   row.push(((amount * apr) / 365) * i);
+          //   row.push(((amount * apy) / 365) * i);
+          //   row.push(((amount * apyfee) / 365) * i);
+          let dprMul = dpr * i;
+          let dprfeeMul = dprfee * i;
+          row.push(dprMul * amount);
+          row.push(getApy(dprMul, minFactorDay * i, false) * amount);
+          row.push(getApy(dprfeeMul, minFactorDay * i, false) * amount);
           rows.push(row);
         }
         return rows;
@@ -258,7 +274,7 @@
         out += `<thead><tr><th>Case</th><th>per Day</th><th>per Week</th><th>per Month</th><th>per Year</th><th>Yield per Day</th><th>Yield per Week</th><th>Yield per Month</th><th>Yield per Year</th></tr></thead><tbody>`;
         out += `<tr><td>No Compound</td><td>${data.nocomp.dpr} %</td><td>${data.nocomp.wpr} %</td><td>${data.nocomp.mpr} %</td><td>${data.nocomp.apr} %</td><td>$${data.nocomp.dy}</td><td>$${data.nocomp.wy}</td><td>$${data.nocomp.my}</td><td>$${data.nocomp.yy}</td></tr>`;
         out += `<tr><td>Compound no fee</td><td>${data.nofee.dpy} %</td><td>${data.nofee.wpy} %</td><td>${data.nofee.mpy} %</td><td>${data.nofee.apy} %</td><td>$${data.nofee.dy}</td><td>$${data.nofee.wy}</td><td>$${data.nofee.my}</td><td>$${data.nofee.yy}</td></tr>`;
-        out += `<tr><td>Compound no fee</td><td>${data.fee.dpy} %</td><td>${data.fee.wpy} %</td><td>${data.fee.mpy} %</td><td>${data.fee.apy} %</td><td>$${data.fee.dy}</td><td>$${data.fee.wy}</td><td>$${data.fee.my}</td><td>$${data.fee.yy}</td></tr>`;
+        out += `<tr><td>Compound with fee</td><td>${data.fee.dpy} %</td><td>${data.fee.wpy} %</td><td>${data.fee.mpy} %</td><td>${data.fee.apy} %</td><td>$${data.fee.dy}</td><td>$${data.fee.wy}</td><td>$${data.fee.my}</td><td>$${data.fee.yy}</td></tr>`;
         out += `</tbody></table>`;
 
         tableEl.innerHTML = out;
@@ -285,18 +301,20 @@
         amountEl = document.getElementById("amountVal");
         intervalVal = document.getElementById("intervalVal");
         intervalUnit = document.getElementById("intervalUnit");
+        basicaprEl = document.getElementById("basicapr");
         const fee = feeEl.value;
         const amount = amountEl.value;
         let intVal = intervalVal.value;
         const intUnit = intervalUnit.value;
+        const basicapr = basicaprEl.value;
 
         feeChanged(fee);
 
         if (intUnit === "day") {
-          intVal *= 60 * 60 * 24;
+          intVal *= 60 * 24;
         }
 
-        drawDashboard(fee / 1000, amount, intVal);
+        drawDashboard(fee / 1000, amount, intVal, basicapr);
       }
     </script>
   </head>
@@ -342,6 +360,16 @@
             onchange="paramChanged()"
           />
           <span>USD</span>
+        </div>
+        <div style="margin: 1em">
+          <span>Basic APR: </span>
+          <input
+            type="number"
+            value="205"
+            id="basicapr"
+            onchange="paramChanged()"
+          />
+          <span>%</span>
         </div>
 
         <div id="chart_div"></div>
