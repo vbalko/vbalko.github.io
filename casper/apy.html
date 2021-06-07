@@ -314,6 +314,10 @@
           intVal *= 60 * 24;
         }
 
+        if (intUnit === "hour") {
+          intVal *= 60;
+        }
+
         drawDashboard(fee / 1000, amount, intVal, basicapr);
       }
     </script>
@@ -348,6 +352,7 @@
           />
           <select name="units" id="intervalUnit" onchange="paramChanged()">
             <option value="min" selected>Minutes</option>
+            <option value="hour">Hours</option>
             <option value="day">Days</option>
           </select>
         </div>
