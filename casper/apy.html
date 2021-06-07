@@ -88,8 +88,8 @@
         const data = new google.visualization.DataTable();
         data.addColumn("number", "Day");
         data.addColumn("number", "No Compound");
-        data.addColumn("number", "15min no fee");
-        data.addColumn("number", "15min with fee");
+        data.addColumn("number", "Compound no fee");
+        data.addColumn("number", "Compound with fee");
 
         data.addRows(prepareChartData(fee, amount, interval));
 
@@ -148,7 +148,7 @@
         lineChart.draw();
       }
 
-      function prepareChartData(fee = 0.045, investition = 1000, minutes = 15) {
+      function prepareChartData(fee = 0.045, amount = 1000, minutes = 15) {
         const minutesPerDay = 60 * 24;
         const minFactorDay = minutesPerDay / minutes;
         const minFactorWeek = minFactorDay * 7;
@@ -189,12 +189,6 @@
           mpr: getApr(emissionsPerMonth, farmValue, false),
           apr: getApr(emissionsPerYear, farmValue, false),
         };
-        tab.nocomp = {
-          dpr: getApr(emissionsPerDay, farmValue),
-          wpr: getApr(emissionsPerWeek, farmValue),
-          mpr: getApr(emissionsPerMonth, farmValue),
-          apr: getApr(emissionsPerYear, farmValue),
-        };
 
         tab.ratefee = {
           dpr: getApr(emissionsPerDayFee, farmValue, false),
@@ -203,11 +197,26 @@
           apr: getApr(emissionsPerYearFee, farmValue, false),
         };
 
+        tab.nocomp = {
+          dpr: getApr(emissionsPerDay, farmValue),
+          wpr: getApr(emissionsPerWeek, farmValue),
+          mpr: getApr(emissionsPerMonth, farmValue),
+          apr: getApr(emissionsPerYear, farmValue),
+          dy: (tab.rate.dpr * amount).toFixed(2),
+          wy: (tab.rate.wpr * amount).toFixed(2),
+          my: (tab.rate.mpr * amount).toFixed(2),
+          yy: (tab.rate.apr * amount).toFixed(2),
+        };
+
         tab.nofee = {
           dpy: getApy(tab.rate.dpr, minFactorDay),
           wpy: getApy(tab.rate.wpr, minFactorWeek),
           mpy: getApy(tab.rate.mpr, minFactorMonth),
           apy: getApy(tab.rate.apr, minFactorYear),
+          dy: (getApy(tab.rate.dpr, minFactorDay, false) * amount).toFixed(2),
+          wy: (getApy(tab.rate.wpr, minFactorWeek, false) * amount).toFixed(2),
+          my: (getApy(tab.rate.mpr, minFactorMonth, false) * amount).toFixed(2),
+          yy: (getApy(tab.rate.apr, minFactorYear, false) * amount).toFixed(2),
         };
 
         tab.fee = {
@@ -215,6 +224,18 @@
           wpy: getApy(tab.ratefee.wpr, minFactorWeek),
           mpy: getApy(tab.ratefee.mpr, minFactorMonth),
           apy: getApy(tab.ratefee.apr, minFactorYear),
+          dy: (getApy(tab.ratefee.dpr, minFactorDay, false) * amount).toFixed(
+            2
+          ),
+          wy: (getApy(tab.ratefee.wpr, minFactorWeek, false) * amount).toFixed(
+            2
+          ),
+          my: (getApy(tab.ratefee.mpr, minFactorMonth, false) * amount).toFixed(
+            2
+          ),
+          yy: (getApy(tab.ratefee.apr, minFactorYear, false) * amount).toFixed(
+            2
+          ),
         };
         showTable(tab);
 
@@ -223,9 +244,9 @@
         for (let i = 0; i < 365; i++) {
           let row = [];
           row.push(i);
-          row.push(((investition * apr) / 365) * i);
-          row.push(((investition * apy) / 365) * i);
-          row.push(((investition * apyfee) / 365) * i);
+          row.push(((amount * apr) / 365) * i);
+          row.push(((amount * apy) / 365) * i);
+          row.push(((amount * apyfee) / 365) * i);
           rows.push(row);
         }
         return rows;
@@ -234,10 +255,10 @@
       function showTable(data) {
         const tableEl = document.getElementById("table");
         let out = `<table class="styled-table">`;
-        out += `<thead><tr><th>Case</th><th>per Day</th><th>per Week</th><th>per Month</th><th>per Year</th></tr></thead><tbody>`;
-        out += `<tr><td>No Compound</td><td>${data.nocomp.dpr} %</td><td>${data.nocomp.wpr} %</td><td>${data.nocomp.mpr} %</td><td>${data.nocomp.apr} %</td></tr>`;
-        out += `<tr><td>Compound no fee</td><td>${data.nofee.dpy} %</td><td>${data.nofee.wpy} %</td><td>${data.nofee.mpy} %</td><td>${data.nofee.apy} %</td></tr>`;
-        out += `<tr><td>Compound no fee</td><td>${data.fee.dpy} %</td><td>${data.fee.wpy} %</td><td>${data.fee.mpy} %</td><td>${data.fee.apy} %</td></tr>`;
+        out += `<thead><tr><th>Case</th><th>per Day</th><th>per Week</th><th>per Month</th><th>per Year</th><th>Yield per Day</th><th>Yield per Week</th><th>Yield per Month</th><th>Yield per Year</th></tr></thead><tbody>`;
+        out += `<tr><td>No Compound</td><td>${data.nocomp.dpr} %</td><td>${data.nocomp.wpr} %</td><td>${data.nocomp.mpr} %</td><td>${data.nocomp.apr} %</td><td>$${data.nocomp.dy}</td><td>$${data.nocomp.wy}</td><td>$${data.nocomp.my}</td><td>$${data.nocomp.yy}</td></tr>`;
+        out += `<tr><td>Compound no fee</td><td>${data.nofee.dpy} %</td><td>${data.nofee.wpy} %</td><td>${data.nofee.mpy} %</td><td>${data.nofee.apy} %</td><td>$${data.nofee.dy}</td><td>$${data.nofee.wy}</td><td>$${data.nofee.my}</td><td>$${data.nofee.yy}</td></tr>`;
+        out += `<tr><td>Compound no fee</td><td>${data.fee.dpy} %</td><td>${data.fee.wpy} %</td><td>${data.fee.mpy} %</td><td>${data.fee.apy} %</td><td>$${data.fee.dy}</td><td>$${data.fee.wy}</td><td>$${data.fee.my}</td><td>$${data.fee.yy}</td></tr>`;
         out += `</tbody></table>`;
 
         tableEl.innerHTML = out;
