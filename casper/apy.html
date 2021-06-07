@@ -5,7 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Casper APY chart</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-nord.min.css"
+    />
     <style>
+      .chart {
+        width: 100%;
+        min-height: 450px;
+      }
+    </style>
+    <!-- <style>
       body {
         background-color: #34ee3d;
         opacity: 0.8;
@@ -63,7 +73,7 @@
         font-weight: bold;
         color: #009879;
       }
-    </style>
+    </style> -->
     <!--Load the AJAX API-->
     <script
       type="text/javascript"
@@ -115,8 +125,8 @@
             title: "Yields overview",
             subtitle: "for 1 year daily",
           },
-          width: 900,
-          height: 500,
+          //   width: "90%",
+          //   height: "90%",
         };
         // Create a pie chart, passing some options
         var pieChart = new google.visualization.ChartWrapper({
@@ -323,63 +333,79 @@
     </script>
   </head>
   <body>
-    <section>
-      <!--Div that will hold the dashboard-->
-      <div id="dashboard_div">
-        <!--Divs that will hold each control and chart-->
-        <div id="filter_div"></div>
-        <div class="slidecontainer" style="margin: 1em">
-          <span>Fee:</span>
-          <input
-            type="range"
-            min="0"
-            max="1000"
-            value="45"
-            class="slider"
-            id="feeRange"
-            style="width: 50%"
-            oninput="paramChanged()"
-          />
-          <fee>4.5%</fee>
-        </div>
-        <div style="margin: 1em">
-          <span>Interval: </span>
-          <input
-            type="number"
-            value="15"
-            id="intervalVal"
-            onchange="paramChanged()"
-          />
-          <select name="units" id="intervalUnit" onchange="paramChanged()">
-            <option value="min" selected>Minutes</option>
-            <option value="hour">Hours</option>
-            <option value="day">Days</option>
-          </select>
-        </div>
-        <div id="amount" class="investition" style="margin: 1em">
-          <span>Amount: </span>
-          <input
-            type="number"
-            value="1000"
-            id="amountVal"
-            onchange="paramChanged()"
-          />
-          <span>USD</span>
-        </div>
-        <div style="margin: 1em">
-          <span>Basic APR: </span>
-          <input
-            type="number"
-            value="205"
-            id="basicapr"
-            onchange="paramChanged()"
-          />
-          <span>%</span>
-        </div>
+    <header class="sticky">
+      <a href="#" class="logo" style="margin-left: 1rem">APY Calculator</a>
+      <!-- <a href="#" role="button">Menu</a> -->
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <h3>Lorem Ipsum</h3>
+          <br />
+          <section>
+            <!--Div that will hold the dashboard-->
+            <div id="dashboard_div">
+              <!--Divs that will hold each control and chart-->
+              <div id="filter_div"></div>
+              <div class="slidecontainer" style="margin: 1em">
+                <span>Fee:</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1000"
+                  value="45"
+                  class="slider"
+                  id="feeRange"
+                  style="width: 50%"
+                  oninput="paramChanged()"
+                />
+                <fee>4.5%</fee>
+              </div>
+              <div style="margin: 1em">
+                <span>Interval: </span>
+                <input
+                  type="number"
+                  value="15"
+                  id="intervalVal"
+                  onchange="paramChanged()"
+                />
+                <select
+                  name="units"
+                  id="intervalUnit"
+                  onchange="paramChanged()"
+                >
+                  <option value="min" selected>Minutes</option>
+                  <option value="hour">Hours</option>
+                  <option value="day">Days</option>
+                </select>
+              </div>
+              <div id="amount" class="investition" style="margin: 1em">
+                <span>Amount: </span>
+                <input
+                  type="number"
+                  value="1000"
+                  id="amountVal"
+                  onchange="paramChanged()"
+                />
+                <span>USD</span>
+              </div>
+              <div style="margin: 1em">
+                <span>Basic APR: </span>
+                <input
+                  type="number"
+                  value="205"
+                  id="basicapr"
+                  onchange="paramChanged()"
+                />
+                <span>%</span>
+              </div>
 
-        <div id="chart_div"></div>
-        <div id="table"></div>
+              <div id="chart_div" class="chart"></div>
+              <div id="table"></div>
+            </div>
+          </section>
+        </div>
       </div>
-    </section>
+    </div>
   </body>
 </html>
