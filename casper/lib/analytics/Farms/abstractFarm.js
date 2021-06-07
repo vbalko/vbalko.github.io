@@ -25,6 +25,10 @@ export class AbstractFarm {
     return this.provider.name;
   }
 
+  async getContract(contractAdress, abi) {
+    return await state.metamask.getContract(contractAdress, abi);
+  }
+
   getTokenName() {
     return this.notImplemented;
   }

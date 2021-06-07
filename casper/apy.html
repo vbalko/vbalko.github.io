@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Casper APY chart</title>
+    <style>
+      body {
+        background-color: #34ee3d;
+        opacity: 0.8;
+        background-image: radial-gradient(#0164a7 0.5px, #e5e5f7 0.5px);
+        background-size: 10px 10px;
+      }
+
+      section {
+        background: rgb(56, 114, 126);
+        color: white;
+        border-radius: 1em;
+        padding: 1em;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+      }
+
+      div.blocktext {
+        margin-left: auto;
+        margin-right: auto;
+        width: 8em;
+      }
+
+      .styled-table {
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      }
+      .styled-table thead tr {
+        background-color: #009879;
+        color: #ffffff;
+        text-align: left;
+      }
+      .styled-table th,
+      .styled-table td {
+        padding: 12px 15px;
+      }
+      .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+      }
+
+      .styled-table tbody tr:nth-of-type(even) {
+        background-color: #0273a7;
+      }
+
+      .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #009879;
+      }
+      .styled-table tbody tr.active-row {
+        font-weight: bold;
+        color: #009879;
+      }
+    </style>
+    <!--Load the AJAX API-->
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <script type="text/javascript">
+      // Load the Visualization API and the controls package.
+      // Packages for all the other charts you need will be loaded
+      // automatically by the system.
+      google.charts.load("current", {
+        packages: ["corechart", "controls", "line"],
+      });
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawDashboard);
+
+      // Callback that creates and populates a data table,
+      // instantiates a dashboard, a range slider and a pie chart,
+      // passes in the data and draws it.
+      function drawDashboard(fee, amount) {
+        // Create our data table.
+        const data = new google.visualization.DataTable();
+        data.addColumn("number", "Day");
+        data.addColumn("number", "No Compound");
+        data.addColumn("number", "15min no fee");
+        data.addColumn("number", "15min with fee");
+
+        data.addRows(prepareChartData(fee, amount));
+
+        // Create a dashboard.
+        var dashboard = new google.visualization.Dashboard(
+          document.getElementById("dashboard_div")
+        );
+
+        // Create a range slider, passing some options
+        var feeSlider = new google.visualization.ControlWrapper({
+          controlType: "NumberRangeFilter",
+          containerId: "filter_div",
+          options: {
+            minValue: 0,
+            maxValue: 1,
+          },
+        });
+
+        const options = {
+          chart: {
+            title: "Yields overview",
+            subtitle: "for 1 year daily",
+          },
+          width: 900,
+          height: 500,
+        };
+        // Create a pie chart, passing some options
+        var pieChart = new google.visualization.ChartWrapper({
+          chartType: "PieChart",
+          containerId: "chart_div",
+          options: {
+            width: 300,
+            height: 300,
+            pieSliceText: "value",
+            legend: "right",
+          },
+        });
+
+        const lineChart = new google.visualization.ChartWrapper({
+          chartType: "Line",
+          containerId: "chart_div",
+          dataTable: data,
+          options: options,
+        });
+
+        //         // Instantiate and draw the chart for Anthony's pizza.
+        // var chart = new google.visualization.PieChart(document.getElementById('Anthony_chart_div'));
+        // chart.draw(data, options);
+
+        // Establish dependencies, declaring that 'filter' drives 'pieChart',
+        // so that the pie chart will only display entries that are let through
+        // given the chosen slider range.
+        // dashboard.bind(lineChart);
+
+        // Draw the dashboard.
+        lineChart.draw();
+      }
+
+      function prepareChartData(fee = 0.045, investition = 1000, minutes = 15) {
+        const minutesPerDay = 60 * 24;
+        const minFactorDay = minutesPerDay / minutes;
+        const minFactorWeek = minFactorDay * 7;
+        const minFactorMonth = minFactorDay * 30;
+        const minFactorYear = minFactorMonth * 12;
+
+        const farmValue = 10170800.1554813;
+        const poolEmissions = 0.117937656650904;
+        const EmmisionsPerSec = 0.663825118487513;
+        const emissionsPerDay = EmmisionsPerSec * 60 * 60 * 24;
+        const emissionsPerWeek = EmmisionsPerSec * 60 * 60 * 24 * 7;
+        const emissionsPerMonth = EmmisionsPerSec * 60 * 60 * 24 * 30;
+        const emissionsPerYear = EmmisionsPerSec * 60 * 60 * 24 * 365;
+        const emissionsPerDayFee = emissionsPerDay / (1 + fee);
+        const emissionsPerWeekFee = emissionsPerWeek / (1 + fee);
+        const emissionsPerMonthFee = emissionsPerMonth / (1 + fee);
+        const emissionsPerYearFee = emissionsPerYear / (1 + fee);
+
+        const apr = emissionsPerYear / farmValue;
+        const aprFee = emissionsPerYearFee / farmValue;
+        const apy = (1 + apr / minFactorYear) ** minFactorYear - 1;
+        const apyfee = (1 + aprFee / minFactorYear) ** minFactorYear - 1;
+
+        //to table
+        const getApr = (emmisions, farmValue, returnPercent = true) => {
+          const ret = emmisions / farmValue;
+          return returnPercent ? (ret * 100).toFixed(4) : ret;
+        };
+
+        const getApy = (rate, factor, returnPercent = true) => {
+          const ret = (1 + rate / factor) ** factor - 1;
+          return returnPercent ? (ret * 100).toFixed(4) : ret;
+        };
+        const tab = {};
+        tab.rate = {
+          dpr: getApr(emissionsPerDay, farmValue, false),
+          wpr: getApr(emissionsPerWeek, farmValue, false),
+          mpr: getApr(emissionsPerMonth, farmValue, false),
+          apr: getApr(emissionsPerYear, farmValue, false),
+        };
+        tab.nocomp = {
+          dpr: getApr(emissionsPerDay, farmValue),
+          wpr: getApr(emissionsPerWeek, farmValue),
+          mpr: getApr(emissionsPerMonth, farmValue),
+          apr: getApr(emissionsPerYear, farmValue),
+        };
+
+        tab.ratefee = {
+          dpr: getApr(emissionsPerDayFee, farmValue, false),
+          wpr: getApr(emissionsPerWeekFee, farmValue, false),
+          mpr: getApr(emissionsPerMonthFee, farmValue, false),
+          apr: getApr(emissionsPerYearFee, farmValue, false),
+        };
+
+        tab.nofee = {
+          dpy: getApy(tab.rate.dpr, minFactorDay),
+          wpy: getApy(tab.rate.wpr, minFactorWeek),
+          mpy: getApy(tab.rate.mpr, minFactorMonth),
+          apy: getApy(tab.rate.apr, minFactorYear),
+        };
+
+        tab.fee = {
+          dpy: getApy(tab.ratefee.dpr, minFactorDay),
+          wpy: getApy(tab.ratefee.wpr, minFactorWeek),
+          mpy: getApy(tab.ratefee.mpr, minFactorMonth),
+          apy: getApy(tab.ratefee.apr, minFactorYear),
+        };
+        showTable(tab);
+
+        const rows = [];
+
+        for (let i = 0; i < 365; i++) {
+          let row = [];
+          row.push(i);
+          row.push(((investition * apr) / 365) * i);
+          row.push(((investition * apy) / 365) * i);
+          row.push(((investition * apyfee) / 365) * i);
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      function showTable(data) {
+        const tableEl = document.getElementById("table");
+        let out = `<table class="styled-table">`;
+        out += `<thead><tr><th>Case</th><th>per Day</th><th>per Week</th><th>per Month</th><th>per Year</th></tr></thead><tbody>`;
+        out += `<tr><td>No Compound</td><td>${data.nocomp.dpr} %</td><td>${data.nocomp.wpr} %</td><td>${data.nocomp.mpr} %</td><td>${data.nocomp.apr} %</td></tr>`;
+        out += `<tr><td>Compound no fee</td><td>${data.nofee.dpy} %</td><td>${data.nofee.wpy} %</td><td>${data.nofee.mpy} %</td><td>${data.nofee.apy} %</td></tr>`;
+        out += `<tr><td>Compound no fee</td><td>${data.fee.dpy} %</td><td>${data.fee.wpy} %</td><td>${data.fee.mpy} %</td><td>${data.fee.apy} %</td></tr>`;
+        out += `</tbody></table>`;
+
+        tableEl.innerHTML = out;
+      }
+
+      function feeChanged(value) {
+        const fee = value;
+        feeElement = document.querySelector("fee");
+        feeElement.innerHTML = String(value / 10) + "%";
+
+        amountEl = document.getElementById("amount");
+
+        drawDashboard(fee / 1000, amountEl.value);
+      }
+
+      function amountChanged(value) {
+        feeEl = document.getElementById("feeRange");
+        amountEl = document.getElementById("amount");
+        const fee = feeEl.value;
+        const amount = amountEl.value;
+        drawDashboard(fee / 1000, value);
+      }
+    </script>
+  </head>
+  <body>
+    <section>
+      <!--Div that will hold the dashboard-->
+      <div id="dashboard_div">
+        <!--Divs that will hold each control and chart-->
+        <div id="filter_div"></div>
+        <div class="slidecontainer" style="margin: 1em">
+          <span>Fee:</span>
+          <input
+            type="range"
+            min="0"
+            max="1000"
+            value="45"
+            class="slider"
+            id="feeRange"
+            style="width: 50%"
+            oninput="feeChanged(this.value)"
+          />
+          <fee>4.5%</fee>
+        </div>
+        <div id="amount" class="investition" style="margin: 1em">
+          <span>Amount: </span>
+          <input
+            type="number"
+            value="1000"
+            onchange="amountChanged(this.value)"
+          />
+          <span>USD</span>
+        </div>
+
+        <div id="chart_div"></div>
+        <div id="table"></div>
+      </div>
+    </section>
+  </body>
+</html>
