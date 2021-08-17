@@ -5,6 +5,7 @@ class FTMScan {
   constructor() {
     this.class = "FTMScan8";
     this.message = message;
+    this.apikey = 'WKBVR9JXB7Q3PS3RMHKYWV5DAAI13NVQD5';
   }
 
   logError(msg, method, showToast = false) {
@@ -16,32 +17,32 @@ class FTMScan {
   }
 
   async getFTMBalance(adress = this.adress) {
-    const url = `https://api.ftmscan.com/api?module=account&action=balance&address=${adress}&tag=latest&apikey=YourApiKeyToken`;
+    const url = `https://api.ftmscan.com/api?module=account&action=balance&address=${adress}&tag=latest&apikey=${this.apikey}`;
     const balance = await this.makeAPICall(url);
     return balance.result;
   }
 
   async getFTMTxs(adress = this.adress) {
-    const url = `https://api.ftmscan.com/api?module=account&action=txlist&address=${adress}&startblock=0&endblock=99999999&sort=asc&apikey=YourApiKeyToken`;
+    const url = `https://api.ftmscan.com/api?module=account&action=txlist&address=${adress}&startblock=0&endblock=99999999&sort=asc&apikey=${this.apikey}`;
     const txs = await this.makeAPICall(url);
     return txs.result;
   }
 
   async getERC20Txs(adress = this.adress) {
-    const url = `https://api.ftmscan.com/api?module=account&action=tokentx&address=${adress}&startblock=0&endblock=999999999&sort=asc&apikey=YourApiKeyToken`;
+    const url = `https://api.ftmscan.com/api?module=account&action=tokentx&address=${adress}&startblock=0&endblock=999999999&sort=asc&apikey=${this.apikey}`;
     const txs = await this.makeAPICall(url);
     state.ERC20Txs = txs.result;
     return txs.result;
   }
 
   async getERC20TokenTotalSupply(adress) {
-    const url = `https://api.ftmscan.com/api?module=stats&action=tokensupply=${adress}&apikey=YourApiKeyToken`;
+    const url = `https://api.ftmscan.com/api?module=stats&action=tokensupply=${adress}&apikey=${this.apikey}`;
     const txs = await this.makeAPICall(url);
     return txs.result;
   }
 
   async getERC20TokenAccountBalance(contractAdress, account) {
-    const url = `https://api.ftmscan.com/api?module=account&action=tokenbalance&contractaddress=${contractAdress}&address=${account}&tag=latest&apikey=YourApiKeyToken`;
+    const url = `https://api.ftmscan.com/api?module=account&action=tokenbalance&contractaddress=${contractAdress}&address=${account}&tag=latest&apikey=${this.apikey}`;
     const txs = await this.makeAPICall(url);
     return txs.result;
   }
