@@ -1,5 +1,6 @@
 import { message } from "./tools/message.js";
 import { Analytics } from "./analytics/index.js";
+import { wallet } from "./wallet/index.js";
 import { state } from "./state.js";
 import { uiHanlder } from "./ui/uihandler.js";
 import { config } from "./config.js";
@@ -61,9 +62,10 @@ export class Casper {
       if (nr.toFixed(3) == 0) return nr.toFixed(18);
       return nr;
     };
-    const aBalances = await this.FTMScan.getERC20TokensBalance(
-      await this.metamask.account
-    );
+    // const aBalances = await this.FTMScan.getERC20TokensBalance(
+    //   await this.metamask.account
+    // );
+    const aBalances = await wallet.getTokenBalances();
 
     const theader = `<caption>Wallet Balances</caption><thead><tr><th>Token</th><th>Name</th><th>Balance</th></tr></thead><tbody>`;
     let table = aBalances.reduce((acc, curr) => {
@@ -88,6 +90,30 @@ export class Casper {
     );
 
     //console.table(table);
+
+    //transactions
+    const aTxs = wallet.tokenTxs.groups[10].transactions;
+    const theaderTxs = `<caption>Token transactions</caption><thead><tr><th>Token</th><th>Name</th><th>Balance</th><th>Sum</th></tr></thead><tbody>`;
+
+    let tableTxs = theaderTxs;
+    let tokenValueSum = 0;
+    for (let token of aTxs) {
+      tokenValueSum += await token.txValue;
+      tableTxs += `<tr><td>${token.tokenSymbol}</td><td>${
+        token.tokenName
+      }</td><td>${formatNr(await token.txValue)}</td><td>${formatNr(
+        tokenValueSum
+      )}</td></tr>`;
+    }
+    // aTxs.reduce((acc, curr) => {
+    //   acc += `<tr><td>${curr.tokenSymbol}</td><td>${
+    //     curr.tokenName
+    //   }</td><td>${formatNr(await curr.txValue)}</td></tr>`;
+    //   return acc;
+    // }, theaderTxs);
+    tableTxs += `</tbody>`;
+
+    this.ui.displayTable("txs", tableTxs);
   }
 
   async connectMetamask() {
@@ -99,6 +125,10 @@ export class Casper {
   }
 
   async test() {
+    const _wallet = wallet;
+    await _wallet.getAllTxs();
+    console.log(_wallet.groupByTokens());
+
     this.chainUtils = new chainUtils(this.metamask);
     await this.chainUtils.init();
     //await this.chainUtils.findFantomUSDPrice();

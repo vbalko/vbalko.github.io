@@ -164,7 +164,8 @@
         fee = 0.045,
         amount = 1000,
         minutes = 15,
-        basicapr = 205
+        basicapr = 205,
+        txfees = 0.0012
       ) {
         const minutesPerDay = 60 * 24;
         const minFactorDay = minutesPerDay / minutes;
@@ -233,10 +234,30 @@
           wpy: getApy(tab.rate.wpr, minFactorWeek),
           mpy: getApy(tab.rate.mpr, minFactorMonth),
           apy: getApy(tab.rate.apr, minFactorYear),
-          dy: (getApy(tab.rate.dpr, minFactorDay, false) * amount).toFixed(2),
-          wy: (getApy(tab.rate.wpr, minFactorWeek, false) * amount).toFixed(2),
-          my: (getApy(tab.rate.mpr, minFactorMonth, false) * amount).toFixed(2),
-          yy: (getApy(tab.rate.apr, minFactorYear, false) * amount).toFixed(2),
+          dy: computeYearn(
+            getApy(tab.rate.dpr, minFactorDay, false),
+            amount,
+            minFactorDay,
+            txfees
+          ), //(getApy(tab.rate.dpr, minFactorDay, false) * amount).toFixed(2),
+          wy: computeYearn(
+            getApy(tab.rate.dpr, minFactorWeek, false),
+            amount,
+            minFactorWeek,
+            txfees
+          ), //(getApy(tab.rate.wpr, minFactorWeek, false) * amount).toFixed(2),
+          my: computeYearn(
+            getApy(tab.rate.dpr, minFactorMonth, false),
+            amount,
+            minFactorMonth,
+            txfees
+          ), //(getApy(tab.rate.mpr, minFactorMonth, false) * amount).toFixed(2),
+          yy: computeYearn(
+            getApy(tab.rate.apr, minFactorYear, false),
+            amount,
+            minFactorYear,
+            txfees
+          ),
         };
 
         tab.fee = {
@@ -276,6 +297,11 @@
           rows.push(row);
         }
         return rows;
+      }
+
+      function computeYearn(rate, amount, nrtxs, txfees, tofixed = 2) {
+        const ret = rate * amount - nrtxs * txfees;
+        return tofixed ? ret.toFixed(tofixed) : ret;
       }
 
       function showTable(data) {

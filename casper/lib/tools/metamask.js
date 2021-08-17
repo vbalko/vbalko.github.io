@@ -1,10 +1,10 @@
-import { message } from "./message.js";
+//import { message } from "./message.js";
 import { state } from "../state.js";
 
 class Metamask {
   constructor() {
     //this.state = undefined;
-    this.message = message;
+    //this.message = state.message;
     this.currentProvider = undefined;
     this._signer = undefined;
     this.connected = false;
@@ -38,16 +38,25 @@ class Metamask {
     return await new ethers.Contract(adress, abi, this._signer);
   }
 
+  checkConnection(showToast = true) {
+    if (!this.isConnected) {
+      state.message.showToast("Connect to metamask");
+      throw new Error("Connect to metamask");
+      //const connectOk = await this.metamask.connect();
+    }
+    return this.isConnected;
+  }
+
   async connect() {
     this.connected = false;
     this.injProvider = await detectEthereumProvider();
     if (this.injProvider) {
       if (this.injProvider !== window.ethereum) {
-        this.message.showToast("Do you have multiple wallets installed?");
+        state.message.showToast("Do you have multiple wallets installed?");
         console.error("Do you have multiple wallets installed?");
         return false;
       } else {
-        this.message.showToast("Metamask connected!");
+        state.message.showToast("Metamask connected!");
         this.currentProvider = new ethers.providers.Web3Provider(
           this.injProvider
         );
@@ -60,7 +69,7 @@ class Metamask {
         return true;
       }
     } else {
-      this.message.showToast("Please install MetaMask!");
+      state.message.showToast("Please install MetaMask!");
       console.error("Please install MetaMask!");
       return false;
     }
@@ -115,7 +124,7 @@ class Metamask {
   handleAccountsChanged(accounts) {
     if (accounts.length === 0) {
       // MetaMask is locked or the user has not connected any accounts
-      this.message.showToast("Please connect to MetaMask.");
+      state.message.showToast("Please connect to MetaMask.");
       console.log("Please connect to MetaMask.");
       this.connected = false;
       // $(document).trigger(
