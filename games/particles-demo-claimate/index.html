@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLAIMATE Tech 3D Animated Particle Text Demo</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, particles, textParticles;
+        const particlesData = [];
+        const textParticlesData = [];
+        const particleCount = 5000;
+        const textParticleCount = 3000;
+
+        init();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 50;
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            createBackgroundParticles();
+            createTextParticles();
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function createBackgroundParticles() {
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            const n = 1000, n2 = n / 2;
+            for (let i = 0; i < positions.length; i += 3) {
+                const x = Math.random() * n - n2;
+                const y = Math.random() * n - n2;
+                const z = Math.random() * n - n2;
+
+                positions[i] = x;
+                positions[i + 1] = y;
+                positions[i + 2] = z;
+
+                const vx = (Math.random() - 0.5) * 0.2;
+                const vy = (Math.random() - 0.5) * 0.2;
+                const vz = (Math.random() - 0.5) * 0.2;
+
+                particlesData.push({
+                    velocity: new THREE.Vector3(vx, vy, vz),
+                    numConnections: 0
+                });
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.5,
+                vertexColors: true,
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        function createTextParticles() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 1024;
+            canvas.height = 256;
+            context.font = "bold 120px Arial";
+            context.fillStyle = "white";
+            context.textAlign = "center";
+            context.fillText("CLAIMATE Tech", canvas.width / 2, canvas.height / 2);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(textParticleCount * 3);
+            const colors = new Float32Array(textParticleCount * 3);
+
+            let particleIndex = 0;
+            for (let i = 0; i < textParticleCount; i++) {
+                let x, y;
+                do {
+                    x = Math.floor(Math.random() * canvas.width);
+                    y = Math.floor(Math.random() * canvas.height);
+                } while (imageData.data[(y * canvas.width + x) * 4] === 0);
+
+                positions[particleIndex * 3] = (x - canvas.width / 2) * 0.05;
+                positions[particleIndex * 3 + 1] = -(y - canvas.height / 2) * 0.05;
+                positions[particleIndex * 3 + 2] = 0;
+
+                colors[particleIndex * 3] = 1;
+                colors[particleIndex * 3 + 1] = 1;
+                colors[particleIndex * 3 + 2] = 1;
+
+                textParticlesData.push({
+                    originalX: positions[particleIndex * 3],
+                    originalY: positions[particleIndex * 3 + 1],
+                    originalZ: positions[particleIndex * 3 + 2]
+                });
+
+                particleIndex++;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.2,
+                vertexColors: true,
+            });
+
+            textParticles = new THREE.Points(geometry, material);
+            scene.add(textParticles);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = Date.now() * 0.001;
+            animateBackgroundParticles(time);
+            animateTextParticles(time);
+
+            camera.position.x = Math.sin(time * 0.1) * 30;
+            camera.position.z = Math.cos(time * 0.1) * 30;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        function animateBackgroundParticles(time) {
+            const positions = particles.geometry.attributes.position.array;
+            const colors = particles.geometry.attributes.color.array;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particleData = particlesData[i];
+
+                positions[i * 3] += particleData.velocity.x;
+                positions[i * 3 + 1] += particleData.velocity.y;
+                positions[i * 3 + 2] += particleData.velocity.z;
+
+                if (positions[i * 3 + 1] < -500 || positions[i * 3 + 1] > 500) particleData.velocity.y = -particleData.velocity.y;
+                if (positions[i * 3] < -500 || positions[i * 3] > 500) particleData.velocity.x = -particleData.velocity.x;
+                if (positions[i * 3 + 2] < -500 || positions[i * 3 + 2] > 500) particleData.velocity.z = -particleData.velocity.z;
+
+                const r = Math.sin(time + i * 0.1) * 0.5 + 0.5;
+                const g = Math.sin(time + i * 0.1 + 2) * 0.5 + 0.5;
+                const b = Math.sin(time + i * 0.1 + 4) * 0.5 + 0.5;
+
+                colors[i * 3] = r;
+                colors[i * 3 + 1] = g;
+                colors[i * 3 + 2] = b;
+            }
+
+            particles.geometry.attributes.position.needsUpdate = true;
+            particles.geometry.attributes.color.needsUpdate = true;
+        }
+
+        function animateTextParticles(time) {
+            const positions = textParticles.geometry.attributes.position.array;
+            const colors = textParticles.geometry.attributes.color.array;
+
+            for (let i = 0; i < textParticleCount; i++) {
+                const particleData = textParticlesData[i];
+                const wobble = Math.sin(time * 5 + i) * 0.1;
+
+                positions[i * 3] = particleData.originalX + wobble;
+                positions[i * 3 + 1] = particleData.originalY + wobble;
+                positions[i * 3 + 2] = particleData.originalZ + wobble;
+
+                const r = Math.sin(time + i * 0.1) * 0.5 + 0.5;
+                const g = Math.sin(time + i * 0.1 + 2) * 0.5 + 0.5;
+                const b = Math.sin(time + i * 0.1 + 4) * 0.5 + 0.5;
+
+                colors[i * 3] = r;
+                colors[i * 3 + 1] = g;
+                colors[i * 3 + 2] = b;
+            }
+
+            textParticles.geometry.attributes.position.needsUpdate = true;
+            textParticles.geometry.attributes.color.needsUpdate = true;
+        }
+    </script>
+</body>
+</html>
