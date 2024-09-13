@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CLAIMATE Tech Particle Animation (2D Renderer)</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+    #defaultCanvas0 {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Include p5.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <!-- Include lil-gui library -->
+  <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
+  
+  <script>
+    let font;
+    let points = [];
+    let particles = [];
+    let PARTICLE_COUNT = 2220; // Starting particle count
+    const MIN_PARTICLE_COUNT = 750; // Minimum particle count
+    const TEXT_STRING = "CLAIMATE Tech"; // Text to form
+    const FONT_SIZE = 200; // Font size
+    const ANIMATION_SPEED = 0.02; // Speed of text pulsation
+    const FORCE_MULTIPLIER = 0.02; // Multiplier to control force based on distance
+    let showFPS = false; // Flag to determine if FPS should be displayed
+    let gui; // lil-gui instance
+
+    function preload() {
+      // Load the Roboto font from the local 'fonts' directory
+      font = loadFont('fonts/Roboto-Bold.ttf', 
+        () => { console.log('Font loaded successfully'); }, 
+        () => { console.error('Failed to load font'); }
+      );
+    }
+
+    function setup() {
+      createCanvas(window.innerWidth, window.innerHeight); // Use 2D renderer
+      noStroke();
+      frameRate(60); // Optional: cap frame rate for performance
+      
+      // Parse URL parameters to check for debug=true
+      const urlParams = new URLSearchParams(window.location.search);
+      showFPS = urlParams.get('debug') === 'true';
+      
+      console.log(`Show FPS: ${showFPS}`);
+      
+      // Set the font for text
+      textFont(font);
+      
+      generateTextPoints();
+      
+      // Initialize particles
+      initializeParticles();
+      
+      console.log(`Initialized ${particles.length} particles`);
+
+      // Setup lil-gui
+      setupGUI();
+    }
+
+    function setupGUI() {
+      gui = new lil.GUI();
+      gui.add({ particleCount: PARTICLE_COUNT }, 'particleCount', MIN_PARTICLE_COUNT, 5000, 10)
+         .name('Particle Count')
+         .onChange(value => {
+           PARTICLE_COUNT = value;
+           initializeParticles();
+         });
+      gui.add({ showFPS: showFPS }, 'showFPS')
+         .name('Show FPS')
+         .onChange(value => {
+           showFPS = value;
+         });
+    }
+
+    function initializeParticles() {
+      particles = [];
+      let step = max(1, floor(points.length / PARTICLE_COUNT));
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        let index = (i * step) % points.length;
+        let p = new Particle(
+          random(-width / 2, width / 2), 
+          random(-height / 2, height / 2), 
+          points[index].x, 
+          points[index].y
+        );
+        particles.push(p);
+      }
+    }
+
+    function draw() {
+      background(0);
+      
+      // Translate origin to center for consistent positioning
+      translate(width / 2, height / 2);
+      
+      // Update and display all particles
+      for (let p of particles) {
+        p.update();
+        p.show();
+      }
+      
+      // Conditional FPS Display
+      if (showFPS) {
+        // Reset transformation matrix to draw FPS in the top-left corner
+        resetMatrix();
+        fill(255, 200); // Semi-transparent white
+        textSize(16);
+        textAlign(LEFT, TOP);
+        text(`FPS: ${floor(frameRate())}`, 20, 20);
+      }
+      
+      // Descriptive Text in Bottom-Left Corner
+      resetMatrix(); // Ensure we're drawing in screen coordinates
+      fill(255, 150); // Semi-transparent white
+      textSize(14);
+      textAlign(LEFT, BOTTOM);
+      const descriptiveText = "Demo created by ChatGPT's o1-mini model.\n" +
+                              "Interact with the particles using your mouse.\n" +
+                              "Use the GUI to adjust particle count (min 750) and toggle FPS display.\n" +
+                              "Contact: vladimir.balko@claimate.tech\n" +
+                              "Website: https://claimate.tech";
+      text(descriptiveText, 20, height - 20);
+    }
+
+    // Handle window resizing
+    function windowResized() {
+      resizeCanvas(window.innerWidth, window.innerHeight);
+      background(0);
+      generateTextPoints();
+      initializeParticles();
+    }
+
+    // Function to generate and center text points
+    function generateTextPoints() {
+      // Generate points from the text
+      points = font.textToPoints(TEXT_STRING, 0, 0, FONT_SIZE, {
+        sampleFactor: 0.1, // Increased for denser points
+        simplifyThreshold: 0
+      });
+
+      // Calculate the centroid of the points to center the text
+      let centroid = calculateCentroid(points);
+
+      // Calculate shift values to center the text
+      let shiftX = -centroid.x;
+      let shiftY = -centroid.y;
+
+      // Shift all points to center the text
+      points = points.map(p => ({
+        x: p.x + shiftX,
+        y: p.y + shiftY
+      }));
+      
+      console.log(`Generated ${points.length} points for text`);
+    }
+
+    // Function to calculate centroid of points
+    function calculateCentroid(points) {
+      let centroid = { x: 0, y: 0 };
+      for (let p of points) {
+        centroid.x += p.x;
+        centroid.y += p.y;
+      }
+      centroid.x /= points.length;
+      centroid.y /= points.length;
+      return centroid;
+    }
+
+    class Particle {
+      constructor(x, y, tx, ty) {
+        this.x = x;
+        this.y = y;
+        this.tx = tx;
+        this.ty = ty;
+        this.vx = 0;
+        this.vy = 0;
+        this.size = 4; // Adjusted size for 2D rendering
+        this.color = color(random(150, 255), random(150, 255), random(150, 255)); // Dynamic colors
+        this.angle = random(TWO_PI);
+        this.amplitude = 5; // Amplitude for pulsation
+      }
+
+      update() {
+        // Calculate the distance to the target
+        let dx = this.tx - this.x;
+        let dy = this.ty - this.y;
+        let distance = sqrt(dx * dx + dy * dy);
+        
+        // Prevent division by zero
+        if (distance === 0) distance = 0.0001;
+
+        // Calculate the force proportional to distance
+        let force = distance * FORCE_MULTIPLIER;
+
+        // Normalize direction and apply force
+        let ax = (dx / distance) * force;
+        let ay = (dy / distance) * force;
+
+        // Mouse interaction (repulsion)
+        let mx = mouseX - width / 2;
+        let my = mouseY - height / 2;
+        let mdx = this.x - mx;
+        let mdy = this.y - my;
+        let mdistance = sqrt(mdx * mdx + mdy * mdy);
+        let maxDistance = 100;
+        if (mdistance < maxDistance) {
+          let mforce = (maxDistance - mdistance) / maxDistance * 5;
+          let maxMdistance = mdistance === 0 ? 0.0001 : mdistance;
+          ax += (mdx / maxMdistance) * mforce;
+          ay += (mdy / maxMdistance) * mforce;
+        }
+
+        this.vx += ax;
+        this.vy += ay;
+
+        // Apply velocity
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Apply damping to slow down over time
+        this.vx *= 0.9;
+        this.vy *= 0.9;
+
+        // Once close to target, start pulsating
+        if (distance < 1) {
+          this.x = this.tx + sin(this.angle) * this.amplitude;
+          this.y = this.ty + cos(this.angle) * this.amplitude;
+          this.angle += ANIMATION_SPEED;
+        }
+      }
+
+      show() {
+        fill(this.color);
+        noStroke();
+        ellipse(this.x, this.y, this.size, this.size); // Use ellipse to represent particles
+      }
+    }
+  </script>
+</body>
+</html>
